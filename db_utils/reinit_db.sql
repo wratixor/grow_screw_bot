@@ -451,17 +451,18 @@ AS $function$
   l_check_user boolean := false;
 
   l_user_id bigint := coalesce(i_user_id, 0::bigint);
+  l_catch_screw bigint := null;
 
  BEGIN
   l_check_user := ((select count(1) from screw.sc_user as u where u.user_id = l_user_id) = 1);
 
   IF l_check_user THEN
-    l_drop_screw := (select drop_screw from screw.sc_chat as c where c.chat_id = l_chat_id);
-    IF l_drop_screw is not null THEN
-      update screw.sc_user set blade_screw = l_drop_screw, catch_screw = null where user_id = l_user_id;
+    l_catch_screw := (select catch_screw from screw.sc_user as c where c.user_id = l_user_id);
+    IF l_catch_screw is not null THEN
+      update screw.sc_user set blade_screw = l_catch_screw, catch_screw = null where user_id = l_user_id;
     END IF;
     RETURN (
-      SELECT case when l_drop_screw is not null then u.username || screw.s_gen_mid() || ' из кармана и превращает его в режек!'
+      SELECT case when l_catch_screw is not null then u.username || screw.s_gen_mid() || ' из кармана и превращает его в режек!'
                   else u.username || ', тебе нечего точить!' end::text as res
         from screw.sc_user as u
        where u.user_id = l_user_id
@@ -486,7 +487,7 @@ AS $function$
   l_chat_id bigint := coalesce(i_chat_id, 0::bigint);
   l_user_id bigint := coalesce(i_user_id, 0::bigint);
 
-  l_drop_screw bigint := 0;
+  l_drop_screw bigint := null;
 
  BEGIN
   l_check_user  := ((select count(1) from screw.sc_user as u where u.user_id = l_user_id) = 1);
@@ -573,8 +574,6 @@ AS $function$
   l_chat_id bigint := coalesce(i_chat_id, 0::bigint);
   l_user_id bigint := coalesce(i_user_id, 0::bigint);
 
-  l_drop_screw bigint := 0;
-
  BEGIN
   l_check_user  := ((select count(1) from screw.sc_user as u where u.user_id = l_user_id) = 1);
   l_check_chat  := ((select count(1) from screw.sc_chat as c where c.chat_id = l_chat_id) = 1);
@@ -650,8 +649,6 @@ AS $function$
 
   l_chat_id bigint := coalesce(i_chat_id, 0::bigint);
   l_user_id bigint := coalesce(i_user_id, 0::bigint);
-
-  l_drop_screw bigint := 0;
 
  BEGIN
   l_check_user  := ((select count(1) from screw.sc_user as u where u.user_id = l_user_id) = 1);
@@ -1044,3 +1041,4 @@ insert into screw.sc_message_pos(message_pos) values
 ('смотрит на свой болт'),
 ('убаюкивает свой болт'),
 ('хвастается своим болтом');
+
