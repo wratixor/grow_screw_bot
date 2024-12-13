@@ -543,7 +543,7 @@ AS $function$
     l_looser_screw := i_screw_id;
   END IF;
 
-  l_half_size numeric(6, 2) := (select sizesm / 2 from screw.sc_screw where screw_id = l_looser_screw);
+  l_half_size := (select sizesm / 2 from screw.sc_screw where screw_id = l_looser_screw);
   update screw.sc_chat set drop_screw = screw.i_new_screw(l_half_size) where chat_id = i_chat_id;
   update screw.sc_screw set sizesm = l_half_size, update_date = now() where screw_id = l_looser_screw;
 
