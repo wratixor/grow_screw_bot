@@ -1,0 +1,15 @@
+[Unit]
+Description=secretsanta
+After=multi-user.target
+ 
+[Service]
+User=root
+Group=root
+Type=simple
+Restart=always
+RestartSec=5
+WorkingDirectory=/var/www/wratixor.ru/grow_screw_bot
+ExecStart=/var/www/wratixor.ru/grow_screw_bot/.venv/bin/python3 /var/www/wratixor.ru/grow_screw_bot/aiogram_run.py
+ 
+[Install]
+WantedBy=multi-user.target
