@@ -363,7 +363,8 @@ AS $function$
 
 
   l_last_upd timestamptz := (select update_date from screw.sc_screw where screw_id = i_screw_id);
-  l_debuf_pre numeric(4, 2) := (select ((extract(EPOCH from (now() -  l_last_upd)) / 3600.0) - 10.0));
+  l_create_date timestamptz := (select create_date from screw.sc_screw where screw_id = i_screw_id);
+  l_debuf_pre numeric(4, 2) := (select case when l_last_upd > l_create_date then ((extract(EPOCH from (now() -  l_last_upd)) / 3600.0) - 10.0)) else 10.0 end);
   l_debuf numeric(4, 2) := (select case when l_debuf_pre > 10 then 10 else l_debuf_pre end);
   l_d20 numeric(4, 2) := screw.i_d20();
 
@@ -1041,4 +1042,3 @@ insert into screw.sc_message_pos(message_pos) values
 ('смотрит на свой болт'),
 ('убаюкивает свой болт'),
 ('хвастается своим болтом');
-
