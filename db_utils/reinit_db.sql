@@ -446,7 +446,7 @@ AS $function$
     );
   ELSE
     RETURN (
-      select 'isset:' || l_check_isset ' in: ' || l_chat_id || ' u: '
+      select 'isset:' || l_check_isset || ' in: ' || l_chat_id || ' u: '
       || l_user_id || 'check: ' || l_check_user || ' ' || l_check_chat as res
     );
   END IF;
