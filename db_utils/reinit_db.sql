@@ -377,7 +377,7 @@ AS $function$
 
  BEGIN
   IF l_modif < l_min THEN
-    update screw.sc_chat set drop_screw = i_screw_id, update_date = now() where chat_id = i_chat_id;
+    update screw.sc_chat set drop_screw = i_screw_id where chat_id = i_chat_id;
     update screw.sc_user set growe_screw = screw.i_new_screw() where user_id = i_user_id;
     update screw.sc_screw set update_date = now() where screw_id = i_screw_id;
     l_curr_size := 0.0;
