@@ -22,6 +22,7 @@ drop table if exists screw.sc_user cascade;
 CREATE TABLE screw.sc_user (
     user_id bigint NOT NULL,
     username varchar(64) null,
+    first_name varchar(64) null,
     growe_screw bigint references screw.sc_screw(screw_id),
     blade_screw bigint references screw.sc_screw(screw_id),
     catch_screw bigint references screw.sc_screw(screw_id),
@@ -137,8 +138,8 @@ AS $function$
 $function$
 ;
 
-DROP FUNCTION IF EXISTS screw.s_aou_user(int8, text);
-CREATE OR REPLACE FUNCTION screw.s_aou_user(i_user_id bigint, i_username text)
+DROP FUNCTION IF EXISTS screw.s_aou_user(int8, text, text);
+CREATE OR REPLACE FUNCTION screw.s_aou_user(i_user_id bigint, i_username text, i_first_name text)
  RETURNS text
  LANGUAGE plpgsql
  VOLATILE SECURITY DEFINER COST 1
@@ -151,17 +152,18 @@ AS $function$
 
   l_user_id bigint := coalesce(i_user_id, 0::bigint);
   l_username text := coalesce(i_username, '');
+  l_first_name text := coalesce(i_first_name, '');
 
  BEGIN
   l_check_user := ((select count(1) from screw.sc_user as u where u.user_id = l_user_id) = 1);
   IF not l_check_user THEN
-    insert into screw.sc_user (user_id, username, growe_screw)
-                       values (l_user_id, l_username, screw.i_new_screw());
+    insert into screw.sc_user (user_id, username, first_name, growe_screw)
+                       values (l_user_id, l_username, l_first_name, screw.i_new_screw());
     l_add_user := true;
   ELSE
-    l_check := ((select username from screw.sc_user as u where u.user_id = l_user_id) = l_username);
+    l_check := ((select username||first_name from screw.sc_user as u where u.user_id = l_user_id) = l_username||l_first_name);
     IF not l_check THEN
-      update screw.sc_user set username = l_username where user_id = l_user_id;
+      update screw.sc_user set username = l_username, first_name = l_first_name where user_id = l_user_id;
       l_update_user := true;
     END IF;
   END IF;
@@ -285,7 +287,7 @@ DECLARE
 BEGIN
   IF l_chat_id <> 0 THEN
     RETURN QUERY
-    select u.username::text                     as username
+    select u.first_name::text                   as username
          , g.sizesm::numeric(6, 2)              as growe_size
          , coalesce(b.sizesm, 0)::numeric(6, 2) as blade_size
          , coalesce(c.sizesm, 0)::numeric(6, 2) as catch_size
@@ -369,38 +371,44 @@ AS $function$
   l_d20 numeric(4, 2) := screw.i_d20();
 
   l_modif numeric(4, 2) := ((((l_debuf + ((l_d20 ^ l_pow) * l_mul)) / l_di1) - l_sub) / l_di2);
-
-  l_half_size numeric(6, 2) := (select sizesm / 2 from screw.sc_screw where screw_id = i_screw_id);
+  l_curr_size numeric(6, 2) := (select sizesm from screw.sc_screw where screw_id = i_screw_id);
+  l_half_size numeric(6, 2) := l_curr_size / 2.0;
+  l_double_size numeric(6, 2) := l_curr_size / 2.0;
 
  BEGIN
   IF l_modif < l_min THEN
     update screw.sc_chat set drop_screw = i_screw_id, update_date = now() where chat_id = i_chat_id;
     update screw.sc_user set growe_screw = screw.i_new_screw() where user_id = i_user_id;
     update screw.sc_screw set update_date = now() where screw_id = i_screw_id;
+    l_curr_size := 0.0;
   END IF;
   IF l_modif between l_min and l_div THEN
     update screw.sc_chat set drop_screw = screw.i_new_screw(l_half_size) where chat_id = i_chat_id;
     update screw.sc_screw set sizesm = l_half_size, update_date = now() where screw_id = i_screw_id;
+    l_curr_size := l_half_size;
   END IF;
   IF l_modif > l_max THEN
-    update screw.sc_screw set sizesm = (sizesm * 2), update_date = now() where screw_id = i_screw_id;
+    update screw.sc_screw set sizesm = l_double_size, update_date = now() where screw_id = i_screw_id;
+    l_half_size := l_double_size;
   END IF;
   IF l_modif between l_div and l_max THEN
-    update screw.sc_screw set sizesm = sizesm + l_modif, update_date = now() where screw_id = i_screw_id;
+    l_curr_size := l_curr_size + l_modif;
+    IF l_curr_size < 0.0 THEN l_curr_size := 0.0; END IF;
+    update screw.sc_screw set sizesm = l_curr_size, update_date = now() where screw_id = i_screw_id;
   END IF;
 
   insert into screw.sc_grow_log (chat_id, user_id, screw_id) values (i_chat_id, i_user_id, i_screw_id);
   RETURN (
-    SELECT case when l_modif < l_min then ', и его болт отваливается!!!'
-                when l_modif < l_div then ', и его болт ломается пополам!'
-                when l_modif < l_su2 then ', и его болт значительно уменьшается.'
-                when l_modif < l_su1 then ', и его болт уменьшается в размерах'
-                when l_modif < 00.00 then ', и его болт слегка уменьшается'
-                when l_modif > l_max then ', и его болт увеличивается вдвое!!!'
-                when l_modif > l_in2 then ', и его болт значительно увеличивается!'
-                when l_modif > l_in1 then ', и его болт увеличивается в размерах'
-                when l_modif > 00.00 then ', и его болт слегка увеличивается...'
-                else 'остаётся неизменным' end::text as res
+    SELECT (case when l_modif < l_min then ', и тот отваливается!!!'
+                 when l_modif < l_div then ', и тот ломается пополам! Обломок можно забрать!'
+                 when l_modif < l_su2 then ', и тот значительно уменьшается.'
+                 when l_modif < l_su1 then ', и тот уменьшается в размерах'
+                 when l_modif < 00.00 then ', и тот слегка уменьшается'
+                 when l_modif > l_max then ', и тот увеличивается вдвое!!!'
+                 when l_modif > l_in2 then ', и тот значительно увеличивается!'
+                 when l_modif > l_in1 then ', и тот увеличивается в размерах'
+                 when l_modif > 00.00 then ', и тот слегка увеличивается...'
+                 else 'остаётся неизменным.' end || ' Размер болта: ' || l_curr_size || 'см.' )::text as res
     );
  END
 $function$
@@ -453,6 +461,8 @@ AS $function$
 
   l_user_id bigint := coalesce(i_user_id, 0::bigint);
   l_catch_screw bigint := null;
+  l_screw_size numeric(6, 2) := 0.0;
+
 
  BEGIN
   l_check_user := ((select count(1) from screw.sc_user as u where u.user_id = l_user_id) = 1);
@@ -461,9 +471,10 @@ AS $function$
     l_catch_screw := (select catch_screw from screw.sc_user as c where c.user_id = l_user_id);
     IF l_catch_screw is not null THEN
       update screw.sc_user set blade_screw = l_catch_screw, catch_screw = null where user_id = l_user_id;
+      l_screw_size := (select sizesm from screw.sc_screw where screw_id = l_catch_screw);
     END IF;
     RETURN (
-      SELECT case when l_catch_screw is not null then u.username || screw.s_gen_mid() || ' из кармана и превращает его в режек!'
+      SELECT case when l_catch_screw is not null then u.username || screw.s_gen_mid() || ' из кармана и превращает его в режек ' || l_screw_size || 'см.!'
                   else u.username || ', тебе нечего точить!' end::text as res
         from screw.sc_user as u
        where u.user_id = l_user_id
@@ -489,7 +500,7 @@ AS $function$
   l_user_id bigint := coalesce(i_user_id, 0::bigint);
 
   l_drop_screw bigint := null;
-
+  l_screw_size numeric(6, 2) := 0.0;
  BEGIN
   l_check_user  := ((select count(1) from screw.sc_user as u where u.user_id = l_user_id) = 1);
   l_check_chat  := ((select count(1) from screw.sc_chat as c where c.chat_id = l_chat_id) = 1);
@@ -502,10 +513,11 @@ AS $function$
     l_drop_screw := (select drop_screw from screw.sc_chat as c where c.chat_id = l_chat_id);
     IF l_drop_screw is not null THEN
       update screw.sc_user set catch_screw = l_drop_screw where user_id = l_user_id;
+      l_screw_size := (select sizesm from screw.sc_screw where screw_id = l_drop_screw);
     END IF;
 
     RETURN (
-      SELECT case when l_drop_screw is not null then u.username || ' забирает болт себе в карман.'
+      SELECT case when l_drop_screw is not null then u.username || ' забирает болт ' || l_screw_size || 'см. себе в карман.'
                   else u.username || ' не успевает забрать болт.' end::text as res
         from screw.sc_user as u
        where u.user_id = l_user_id
@@ -549,7 +561,8 @@ AS $function$
   update screw.sc_screw set sizesm = l_half_size, update_date = now() where screw_id = l_looser_screw;
 
   RETURN (
-    SELECT 'На арене "' || c.title || '" ' || u.username || ' решает смахнуться болтами с ' || ud.username || '! Болт ' || ul.username || ' разлетается пополам!'
+    SELECT 'На арене "' || c.chat_title || '" ' || u.username || ' решает смахнуться болтами с ' || ud.username
+            || '! Болт ' || ul.username || ' разлетается пополам! Обломок ' || l_half_size || 'см. можно забрать!'
       from screw.sc_chat as c
       join screw.sc_user as u  on  u.user_id = i_user_id
       join screw.sc_user as ud on ud.user_id = i_defuser_id
@@ -585,14 +598,20 @@ AS $function$
 
   IF l_check_isset THEN
     RETURN (
+      select * from (
+      select * from (
       SELECT screw.s_screw_braeck(uc.chat_id, u.user_id, u.growe_screw, du.user_id, du.growe_screw) as res
         from screw.sc_user_chat as uc
         join screw.sc_user as u on u.user_id = uc.user_id and u.user_id = l_user_id
-        join screw.sc_grow_log as sg on sg.chat_id = uc.chat_id
-        join screw.sc_user as du on u.user_id = sg.user_id and u.user_id <> sg.user_id
+        join screw.sc_grow_log as sg on sg.chat_id = uc.chat_id and u.user_id <> sg.user_id
+        join screw.sc_user as du on du.user_id = sg.user_id
        where uc.chat_id = l_chat_id
        order by sg.update_date desc
-       limit 1
+       limit 1 ) t
+      union
+      select 'Некому ломать болт!' as res
+      ) t2
+      limit 1
       FOR READ ONLY
     );
   END IF;
@@ -625,7 +644,7 @@ AS $function$
 
   RETURN (
     SELECT case when l_attack then u.username || ' успешно срезает болт ' || ud.username || '! Быстрее хватай его в карман!'
-           else 'На арене "' || c.title || '" ' || u.username || ' решает срезать болт ' || ud.username || ', но тот успешно защищается своим болтом!'
+           else 'На арене "' || c.chat_title || '" ' || u.username || ' решает срезать болт ' || ud.username || ', но тот успешно защищается своим болтом!'
            end::text as res
       from screw.sc_chat as c
       join screw.sc_user as u  on  u.user_id = i_user_id
@@ -665,8 +684,8 @@ AS $function$
                   else screw.s_screw_cut(uc.chat_id, u.user_id, u.blade_screw, du.user_id, du.growe_screw) end::text as res
         from screw.sc_user_chat as uc
         join screw.sc_user as u on u.user_id = uc.user_id and u.user_id = l_user_id
-   left join screw.sc_grow_log as sg on sg.chat_id = uc.chat_id and (extract(EPOCH from (now() - sg.update_date)) < 66)
-   left join screw.sc_user as du on u.user_id = sg.user_id and u.user_id <> sg.user_id
+   left join screw.sc_grow_log as sg on sg.chat_id = uc.chat_id and (extract(EPOCH from (now() - sg.update_date)) < 66) and u.user_id <> sg.user_id
+   left join screw.sc_user as du on du.user_id = sg.user_id
        where uc.chat_id = l_chat_id
        order by sg.update_date desc
        limit 1

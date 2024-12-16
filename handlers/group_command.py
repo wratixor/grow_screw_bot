@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 @start_router.message(CommandStart())
 async def cmd_start(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: bool):
-    await r.s_aou_user(db, message.from_user.id, quname)
+    await r.s_aou_user(db, message.from_user.id, quname, message.from_user.first_name)
     if isgroup:
         await r.s_aou_chat(db, message.chat.id, message.chat.type, message.chat.title)
         await r.s_join(db, message.from_user.id, message.chat.id)
@@ -48,7 +48,7 @@ async def developer_info(message: Message):
 
 @start_router.message(Command('help'))
 async def helper(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: bool):
-    await r.s_aou_user(db, message.from_user.id, quname)
+    await r.s_aou_user(db, message.from_user.id, quname, message.from_user.first_name)
     if isgroup:
         await r.s_aou_chat(db, message.chat.id, message.chat.type, message.chat.title)
         await r.s_join(db, message.from_user.id, message.chat.id)
@@ -73,7 +73,7 @@ async def helper(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: 
 
 @start_router.message(Command('stat'))
 async def status(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: bool):
-    await r.s_aou_user(db, message.from_user.id, quname)
+    await r.s_aou_user(db, message.from_user.id, quname, message.from_user.first_name)
     res: list[Record]
     answer: str = f'Болты в вашем чатике:\n'
     if isgroup:
@@ -89,7 +89,7 @@ async def status(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: 
 
 @start_router.message(F.text.lower() == 'статы')
 async def status(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: bool):
-    await r.s_aou_user(db, message.from_user.id, quname)
+    await r.s_aou_user(db, message.from_user.id, quname, message.from_user.first_name)
     res: list[Record]
     answer: str = f'Болты в вашем чатике:\n'
     if isgroup:
@@ -105,7 +105,7 @@ async def status(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: 
 
 @start_router.message(F.text.lower() == 'болт')
 async def status(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: bool):
-    await r.s_aou_user(db, message.from_user.id, quname)
+    await r.s_aou_user(db, message.from_user.id, quname, message.from_user.first_name)
     answer: str
     if isgroup:
         await r.s_aou_chat(db, message.chat.id, message.chat.type, message.chat.title)
@@ -153,7 +153,7 @@ async def status(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
 
 @start_router.message(Command('bolt'))
 async def status(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: bool):
-    await r.s_aou_user(db, message.from_user.id, quname)
+    await r.s_aou_user(db, message.from_user.id, quname, message.from_user.first_name)
     answer: str
     if isgroup:
         await r.s_aou_chat(db, message.chat.id, message.chat.type, message.chat.title)
