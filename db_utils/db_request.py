@@ -21,7 +21,7 @@ async def s_aou_user(pool: asyncpg.pool.Pool, user_id: int, username: str, first
     async with pool.acquire() as conn:
         try:
             result = await conn.fetchval("select * from screw.s_aou_user($1::bigint, $2::text, 3$::text)"
-                                         , user_id, username)
+                                         , user_id, username, first_name)
         except Exception as e:
             result = f"Exception s_aou_user({user_id}, {username}, {first_name}): {e}"
             logger.error(result)
