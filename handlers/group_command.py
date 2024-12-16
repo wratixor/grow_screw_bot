@@ -15,6 +15,23 @@ start_router.message.middleware(DatabaseMiddleware())
 start_router.message.middleware(QParamMiddleware())
 logger = logging.getLogger(__name__)
 
+helpstr: str = (f'Доброго времени суток!'
+                f'\n/start - Активация бота'
+                f'\n/help или Помоги - Справка по командам'
+                f'\nКоманды доступные только в чате:'
+                f'\n/bolt или <code>Болт</code> - Растить свой болт'
+                f'\n/cut или <code>Срезать</code> - Попытаться срезать режеком чужой болт'
+                f' (Доступно 1 мин. после того, как кто-то другой выращивал свой болт, ничем не рискуешь'
+                f', но нужно быть быстрым и иметь хороший режек)'
+                f'\n/breack или <code>Сломать</code> - Попытаться сломать своим болтом чужой болт пополам'
+                f' (Доступно всегда после того, как кто-то другой выращивал свой болт, но есть риск сломать свой)'
+                f'\n/catch или <code>Забрать</code> - Подобрать последний срезанный/сломанный/отвалившийся болт'
+                f' (Заменяет предыдущий подобранный болт)'
+                f'\n/sharp или <code>Точить</code> - Заточить последний подобранный болт и превратить его в режек'
+                f' (Заменяет предыдущий режек)'
+                f'\n/stat или <code>Статы</code> - Cтаты участников чата'
+                f'\nНе забудь выдать боту права админа, чтобы он видел русские команды без "/"!')
+
 
 @start_router.message(CommandStart())
 async def cmd_start(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: bool):
@@ -52,24 +69,15 @@ async def helper(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: 
     if isgroup:
         await r.s_aou_chat(db, message.chat.id, message.chat.type, message.chat.title)
         await r.s_join(db, message.from_user.id, message.chat.id)
+    await message.answer(helpstr)
 
-    answer: str = (f'Доброго времени суток!'
-                   f'\n/start - Активация бота'
-                   f'\n/help или Помоги - Справка по командам'
-                   f'\nКоманды доступные только в чате:'
-                   f'\n/bolt или <code>Болт</code> - Растить свой болт'
-                   f'\n/cut или <code>Срезать</code> - Попытаться срезать режеком чужой болт'
-                   f' (Доступно 1 мин. после того, как кто-то другой выращивал свой болт, ничем не рискуешь'
-                   f', но нужно быть быстрым и иметь хороший режек)'
-                   f'\n/breack или <code>Сломать</code> - Попытаться сломать своим болтом чужой болт пополам'
-                   f' (Доступно всегда после того, как кто-то другой выращивал свой болт, но есть риск сломать свой)'
-                   f'\n/catch или <code>Забрать</code> - Подобрать последний срезанный/сломанный/отвалившийся болт'
-                   f' (Заменяет предыдущий подобранный болт)'
-                   f'\n/sharp или <code>Точить</code> - Заточить последний подобранный болт и превратить его в режек'
-                   f' (Заменяет предыдущий режек)'
-                   f'\n/stat или <code>Статы</code> - Cтаты участников чата'
-                   f'\nНе забудь выдать боту права админа, чтобы он видел русские команды без "/"!')
-    await message.answer(answer)
+@start_router.message(F.text.lower() == 'помоги')
+async def status(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: bool):
+    await r.s_aou_user(db, message.from_user.id, quname, message.from_user.first_name)
+    if isgroup:
+        await r.s_aou_chat(db, message.chat.id, message.chat.type, message.chat.title)
+        await r.s_join(db, message.from_user.id, message.chat.id)
+    await message.answer(helpstr)
 
 @start_router.message(Command('stat'))
 async def status(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: bool):
