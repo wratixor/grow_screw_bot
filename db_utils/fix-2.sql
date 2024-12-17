@@ -72,7 +72,7 @@ AS $function$
   l_debuf numeric(4, 2) := (select case when l_debuf_pre > 10 then 10 else l_debuf_pre end);
   l_d20 numeric(4, 2) := screw.i_d20();
 
-  l_modif numeric(4, 2) := ((((l_debuf + ((l_d20 ^ l_pow) * l_mul)) / l_di1) - l_sub) / l_di2);
+  l_modif numeric := ((((l_debuf + ((l_d20 ^ l_pow) * l_mul)) / l_di1) - l_sub) / l_di2);
   l_curr_size numeric(6, 2) := (select sizesm from screw.sc_screw where screw_id = i_screw_id);
   l_half_size numeric(6, 2) := l_curr_size / 2.0;
   l_double_size numeric(6, 2) := l_curr_size / 2.0;
