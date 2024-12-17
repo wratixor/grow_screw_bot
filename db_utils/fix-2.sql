@@ -115,3 +115,57 @@ AS $function$
  END
 $function$
 ;
+
+DROP FUNCTION IF EXISTS screw.s_user_grow(int8, int8);
+CREATE OR REPLACE FUNCTION screw.s_user_grow(i_chat_id bigint, i_user_id bigint)
+ RETURNS text
+ LANGUAGE plpgsql
+ VOLATILE SECURITY DEFINER COST 1
+AS $function$
+ DECLARE
+  l_check_user boolean := false;
+  l_check_chat boolean := false;
+  l_check_isset boolean := false;
+  l_check_query boolean := false;
+  l_antispam boolean := false;
+
+  l_chat_id bigint := coalesce(i_chat_id, 0::bigint);
+  l_user_id bigint := coalesce(i_user_id, 0::bigint);
+
+
+
+ BEGIN
+  l_check_user  := ((select count(1) from screw.sc_user as u where u.user_id = l_user_id) = 1);
+  l_check_chat  := ((select count(1) from screw.sc_chat as c where c.chat_id = l_chat_id) = 1);
+
+  IF l_check_user and l_check_chat THEN
+    l_check_isset := ((select count(1) from screw.sc_user_chat as uc where uc.user_id = l_user_id and uc.chat_id = l_chat_id) = 1);
+  END IF;
+
+  IF l_check_isset THEN
+   l_antispam := (
+     select ((now() - max(update_date)) > (interval '2 hours'))
+       from screw.sc_grow_log as sg
+      where sg.chat_id = l_chat_id
+        and sg.user_id = l_user_id
+    );
+
+    IF l_antispam THEN
+      RETURN (
+        SELECT u.username || screw.s_gen_mid() || screw.s_screw_grow(l_chat_id, u.user_id, u.growe_screw)
+          from screw.sc_user as u
+         where u.user_id = l_user_id
+        FOR READ ONLY
+      );
+    ELSE
+      RETURN (
+        SELECT u.username || ', ХАРЭ ДРОЧИТЬ!'
+          from screw.sc_user as u
+         where u.user_id = l_user_id
+        FOR READ ONLY
+      );
+    END IF;
+  END IF;
+ END
+$function$
+;
