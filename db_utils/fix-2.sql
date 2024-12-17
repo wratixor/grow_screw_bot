@@ -66,10 +66,10 @@ AS $function$
 
   l_last_upd timestamptz := (select update_date from screw.sc_screw where screw_id = i_screw_id);
   l_create_date timestamptz := (select create_date from screw.sc_screw where screw_id = i_screw_id);
-  l_debuf_pre numeric(4, 2) := (select case when (now() - l_last_upd) < (interval '3 hour') then -100.0
-                                            when (l_last_upd > (l_create_date + interval '10 second')) then ((extract(EPOCH from (now() -  l_last_upd)) / 3600.0) - 10.0)
-                                            else 10.0 end);
-  l_debuf numeric(4, 2) := (select case when l_debuf_pre > 10 then 10 else l_debuf_pre end);
+  l_debuf_pre numeric := (select case when (now() - l_last_upd) < (interval '3 hour') then -100.0
+                                      when (l_last_upd > (l_create_date + interval '10 second')) then ((extract(EPOCH from (now() -  l_last_upd)) / 3600.0) - 10.0)
+                                      else 10.0 end);
+  l_debuf numeric := (select case when l_debuf_pre > 10 then 10 else l_debuf_pre end);
   l_d20 numeric(4, 2) := screw.i_d20();
 
   l_modif numeric := ((((l_debuf + ((l_d20 ^ l_pow) * l_mul)) / l_di1) - l_sub) / l_di2);
