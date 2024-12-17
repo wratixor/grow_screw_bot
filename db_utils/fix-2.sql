@@ -144,10 +144,9 @@ AS $function$
 
   IF l_check_isset THEN
    l_antispam := (
-     select ((now() - max(update_date)) > (interval '2 hours'))
+     select ((now() - max(update_date)) > (interval '2 hours') or max(update_date) is null)
        from screw.sc_grow_log as sg
-      where sg.chat_id = l_chat_id
-        and sg.user_id = l_user_id
+      where sg.user_id = l_user_id
     );
 
     IF l_antispam THEN
