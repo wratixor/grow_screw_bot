@@ -75,7 +75,7 @@ AS $function$
   l_modif numeric := ((((l_debuf + ((l_d20 ^ l_pow) * l_mul)) / l_di1) - l_sub) / l_di2);
   l_curr_size numeric(6, 2) := (select sizesm from screw.sc_screw where screw_id = i_screw_id);
   l_half_size numeric(6, 2) := l_curr_size / 2.0;
-  l_double_size numeric(6, 2) := l_curr_size / 2.0;
+  l_double_size numeric(6, 2) := l_curr_size * 2.0;
 
  BEGIN
   IF l_modif < l_min THEN
@@ -91,7 +91,7 @@ AS $function$
   END IF;
   IF l_modif > l_max THEN
     update screw.sc_screw set sizesm = l_double_size, update_date = now() where screw_id = i_screw_id;
-    l_half_size := l_double_size;
+    l_curr_size := l_double_size;
   END IF;
   IF l_modif between l_div and l_max THEN
     l_curr_size := l_curr_size + l_modif;
