@@ -24,12 +24,19 @@ helpstr: str = (f'Доброго времени суток!'
                 f' (Доступно 1 мин. после того, как кто-то другой выращивал свой болт, ничем не рискуешь'
                 f', но нужно быть быстрым и иметь хороший режек)'
                 f'\n/breack или <code>Сломать</code> - Попытаться сломать своим болтом чужой болт пополам'
-                f' (Доступно всегда после того, как кто-то другой выращивал свой болт, но есть риск сломать свой)'
+                f' (Доступно всегда, нападение на случайного игрока с близким тебе размером болта'
+                f', есть риск сломать свой)'
+                f'\n/attack или <code>Напасть</code> - Попытаться отобрать чужой болт из кармана'
+                f' (Доступно всегда, нападение на случайного игрока с близким тебе размером режека)'
                 f'\n/catch или <code>Забрать</code> - Подобрать последний срезанный/сломанный/отвалившийся болт'
                 f' (Заменяет предыдущий подобранный болт)'
                 f'\n/sharp или <code>Точить</code> - Заточить последний подобранный болт и превратить его в режек'
                 f' (Заменяет предыдущий режек)'
+                f'\n/tig или <code>Варить</code> - Попытаться приварить болт из кармана к своему болту'
+                f' (наращивает болт на случайый процент длинны болта из кармана)'
                 f'\n/stat или <code>Статы</code> - Cтаты участников чата'
+                f'\n/statall или <code>Все статы</code> - Cтаты всех участников'
+                f'\n/statmy или <code>Мои статы</code> - Свои статы'
                 f'\nНе забудь выдать боту права админа, чтобы он видел русские команды без "/"!')
 
 
@@ -83,14 +90,14 @@ async def status(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: 
 async def status(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: bool):
     await r.s_aou_user(db, message.from_user.id, quname, message.from_user.first_name)
     res: list[Record]
-    answer: str = f'Болты в вашем чатике:\n'
+    answer: str = (f'Болты в вашем чатике:\n'
+                   f'Болт|Режек|В кармане|Имя\n')
     if isgroup:
         await r.s_aou_chat(db, message.chat.id, message.chat.type, message.chat.title)
         await r.s_join(db, message.from_user.id, message.chat.id)
         res = await r.r_status(db, message.chat.id)
         for row in res:
-            answer += (f"{row['username']} - Болт: {row['growe_size']}| Режек: {row['blade_size']}"
-                       f"| В кармане: {row['catch_size']}\n")
+            answer += f"{row['growe_size']}| {row['blade_size']}| {row['catch_size']} | {row['username']}"
     else:
         answer = 'Команда доступна только в группе!'
     await message.answer(answer)
@@ -99,16 +106,71 @@ async def status(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: 
 async def status(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: bool):
     await r.s_aou_user(db, message.from_user.id, quname, message.from_user.first_name)
     res: list[Record]
-    answer: str = f'Болты в вашем чатике:\n'
+    answer: str = (f'Болты в вашем чатике:\n'
+                   f'Болт|Режек|В кармане|Имя\n')
     if isgroup:
         await r.s_aou_chat(db, message.chat.id, message.chat.type, message.chat.title)
         await r.s_join(db, message.from_user.id, message.chat.id)
         res = await r.r_status(db, message.chat.id)
         for row in res:
-            answer += (f"{row['username']} - Болт: {row['growe_size']}| Режек: {row['blade_size']}"
-                       f"| В кармане: {row['catch_size']}\n")
+            answer += f"{row['growe_size']}| {row['blade_size']}| {row['catch_size']} | {row['username']}"
     else:
         answer = 'Команда доступна только в группе!'
+    await message.answer(answer)
+
+@start_router.message(Command('statall'))
+async def status(message: Message, db: asyncpg.pool.Pool, quname: str):
+    await r.s_aou_user(db, message.from_user.id, quname, message.from_user.first_name)
+    res: list[Record]
+    answer: str = (f'По всем пользователям:\n'
+                   f'Болт|Режек|В кармане|Имя\n')
+    res = await r.r_status_all(db)
+    for row in res:
+        answer += f"{row['growe_size']}| {row['blade_size']}| {row['catch_size']} | {row['username']}"
+    await message.answer(answer)
+
+@start_router.message(Command('statmy'))
+async def status(message: Message, db: asyncpg.pool.Pool, quname: str):
+    await r.s_aou_user(db, message.from_user.id, quname, message.from_user.first_name)
+    res: list[Record]
+    answer: str = 'Твой профиль, '
+    res = await r.r_status_my(db, message.from_user.id)
+    row = res[0]
+    answer += (f"{row['username']}!\n"
+               f"Болт: {row['growe_size']}\n"
+               f"Режек: {row['blade_size']}\n"
+               f"В кармане: {row['catch_size']}\n"
+               f"Удача: {row['luck']}\n"
+               f"Позолота: {row['donat_luck']}\n"
+               f"{row['donat']}")
+    await message.answer(answer)
+
+
+@start_router.message(F.text.lower() == 'все статы')
+async def status(message: Message, db: asyncpg.pool.Pool, quname: str):
+    await r.s_aou_user(db, message.from_user.id, quname, message.from_user.first_name)
+    res: list[Record]
+    answer: str = (f'По всем пользователям:\n'
+                   f'Болт|Режек|В кармане|Имя\n')
+    res = await r.r_status_all(db)
+    for row in res:
+        answer += f"{row['growe_size']}| {row['blade_size']}| {row['catch_size']} | {row['username']}"
+    await message.answer(answer)
+
+@start_router.message(F.text.lower() == 'мои статы')
+async def status(message: Message, db: asyncpg.pool.Pool, quname: str):
+    await r.s_aou_user(db, message.from_user.id, quname, message.from_user.first_name)
+    res: list[Record]
+    answer: str = 'Твой профиль, '
+    res = await r.r_status_my(db, message.from_user.id)
+    row = res[0]
+    answer += (f"{row['username']}!\n"
+               f"Болт: {row['growe_size']}\n"
+               f"Режек: {row['blade_size']}\n"
+               f"В кармане: {row['catch_size']}\n"
+               f"Удача: {row['luck']}\n"
+               f"Позолота: {row['donat_luck']}\n"
+               f"{row['donat']}")
     await message.answer(answer)
 
 @start_router.message(F.text.lower() == 'болт')
@@ -141,6 +203,15 @@ async def status(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
         answer = 'Команда доступна только в группе!'
     await message.answer(answer)
 
+@start_router.message(F.text.lower() == 'напасть')
+async def status(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
+    answer: str
+    if isgroup:
+        answer = await r.s_user_attack(db, message.chat.id, message.from_user.id)
+    else:
+        answer = 'Команда доступна только в группе!'
+    await message.answer(answer)
+
 @start_router.message(F.text.lower() == 'забрать')
 async def status(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
     answer: str
@@ -158,6 +229,16 @@ async def status(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
     else:
         answer = 'Команда доступна только в группе!'
     await message.answer(answer)
+
+@start_router.message(F.text.lower() == 'варить')
+async def status(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
+    answer: str
+    if isgroup:
+        answer = await r.s_user_tig(db, message.from_user.id)
+    else:
+        answer = 'Команда доступна только в группе!'
+    await message.answer(answer)
+
 
 @start_router.message(Command('bolt'))
 async def status(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: bool):
@@ -189,6 +270,15 @@ async def status(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
         answer = 'Команда доступна только в группе!'
     await message.answer(answer)
 
+@start_router.message(Command('attack'))
+async def status(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
+    answer: str
+    if isgroup:
+        answer = await r.s_user_attack(db, message.chat.id, message.from_user.id)
+    else:
+        answer = 'Команда доступна только в группе!'
+    await message.answer(answer)
+
 @start_router.message(Command('catch'))
 async def status(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
     answer: str
@@ -203,6 +293,15 @@ async def status(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
     answer: str
     if isgroup:
         answer = await r.s_user_sharpen(db, message.from_user.id)
+    else:
+        answer = 'Команда доступна только в группе!'
+    await message.answer(answer)
+
+@start_router.message(Command('tig'))
+async def status(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
+    answer: str
+    if isgroup:
+        answer = await r.s_user_tig(db, message.from_user.id)
     else:
         answer = 'Команда доступна только в группе!'
     await message.answer(answer)

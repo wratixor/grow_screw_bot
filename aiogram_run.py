@@ -13,10 +13,14 @@ async def set_all_commands():
     commands = [BotCommand(command='/start', description='Инициализация'),
                 BotCommand(command='/help', description='Помощь'),
                 BotCommand(command='/stat', description='Статы участников в чате'),
+                BotCommand(command='/statall', description='Статы всех участников'),
+                BotCommand(command='/statmy', description='Свои статы'),
                 BotCommand(command='/bolt', description='Болт'),
                 BotCommand(command='/cut', description='Срезать'),
                 BotCommand(command='/breack', description='Сломать'),
+                BotCommand(command='/attack', description='Напасть'),
                 BotCommand(command='/catch', description='Забрать'),
+                BotCommand(command='/tig', description='Варить'),
                 BotCommand(command='/sharp', description='Точить')
                 ]
     await bot.set_my_commands(commands)

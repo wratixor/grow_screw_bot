@@ -44,7 +44,25 @@ async def r_status(pool: asyncpg.pool.Pool, group_id: int = None) -> list[Record
         try:
             result = await conn.fetch("select * from screw.r_status_all($1::bigint)", group_id)
         except Exception as e:
-            logger.error(f"Exception r_status({group_id}): {e}")
+            logger.error(f"Exception r_status_all({group_id}): {e}")
+    return result
+
+async def r_status_all(pool: asyncpg.pool.Pool) -> list[Record]:
+    result: list[Record]
+    async with pool.acquire() as conn:
+        try:
+            result = await conn.fetch("select * from screw.r_status_all($1::bigint)", group_id)
+        except Exception as e:
+            logger.error(f"Exception r_status_all(): {e}")
+    return result
+
+async def r_status_my(pool: asyncpg.pool.Pool, user_id: int = None) -> list[Record]:
+    result: list[Record]
+    async with pool.acquire() as conn:
+        try:
+            result = await conn.fetch("select * from screw.r_status_my($1::bigint)", user_id)
+        except Exception as e:
+            logger.error(f"Exception r_status_my({user_id}): {e}")
     return result
 
 
@@ -81,6 +99,17 @@ async def s_user_breack(pool: asyncpg.pool.Pool, group_id: int, user_id: int):
             logger.error(result)
     return result
 
+async def s_user_attack(pool: asyncpg.pool.Pool, group_id: int, user_id: int):
+    result: str
+    async with pool.acquire() as conn:
+        try:
+            result = await conn.fetchval("select * from screw.s_user_attack($1::bigint, $2::bigint)"
+                                         , group_id, user_id)
+        except Exception as e:
+            result = f"Exception s_user_attack({group_id}, {user_id}): {e}"
+            logger.error(result)
+    return result
+
 async def s_user_catch(pool: asyncpg.pool.Pool, group_id: int, user_id: int):
     result: str
     async with pool.acquire() as conn:
@@ -99,5 +128,15 @@ async def s_user_sharpen(pool: asyncpg.pool.Pool, user_id: int):
             result = await conn.fetchval("select * from screw.s_user_sharpen($1::bigint)", user_id)
         except Exception as e:
             result = f"Exception s_user_sharpen({user_id}): {e}"
+            logger.error(result)
+    return result
+
+async def s_user_tig(pool: asyncpg.pool.Pool, user_id: int):
+    result: str
+    async with pool.acquire() as conn:
+        try:
+            result = await conn.fetchval("select * from screw.s_user_tig($1::bigint)", user_id)
+        except Exception as e:
+            result = f"Exception s_user_tig({user_id}): {e}"
             logger.error(result)
     return result
