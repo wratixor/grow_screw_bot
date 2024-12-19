@@ -135,14 +135,14 @@ async def status(message: Message, db: asyncpg.pool.Pool, quname: str):
     res: list[Record]
     answer: str = 'Твой профиль, '
     res = await r.r_status_my(db, message.from_user.id)
-    row = res[0]
-    answer += (f"{row['username']}!\n"
-               f"Болт: {row['growe_size']}\n"
-               f"Режек: {row['blade_size']}\n"
-               f"В кармане: {row['catch_size']}\n"
-               f"Удача: {row['luck']}\n"
-               f"Позолота: {row['donat_luck']}\n"
-               f"{row['donat']}")
+    for row in res:
+        answer += (f"{row['username']}!\n"
+                   f"Болт: {row['growe_size']}\n"
+                   f"Режек: {row['blade_size']}\n"
+                   f"В кармане: {row['catch_size']}\n"
+                   f"Удача: {row['luck']}\n"
+                   f"Позолота: {row['donat_luck']}\n"
+                   f"{row['donat']}")
     await message.answer(answer)
 
 
@@ -163,14 +163,14 @@ async def status(message: Message, db: asyncpg.pool.Pool, quname: str):
     res: list[Record]
     answer: str = 'Твой профиль, '
     res = await r.r_status_my(db, message.from_user.id)
-    row = res[0]
-    answer += (f"{row['username']}!\n"
-               f"Болт: {row['growe_size']}\n"
-               f"Режек: {row['blade_size']}\n"
-               f"В кармане: {row['catch_size']}\n"
-               f"Удача: {row['luck']}\n"
-               f"Позолота: {row['donat_luck']}\n"
-               f"{row['donat']}")
+    for row in res:
+        answer += (f"{row['username']}!\n"
+                   f"Болт: {row['growe_size']}\n"
+                   f"Режек: {row['blade_size']}\n"
+                   f"В кармане: {row['catch_size']}\n"
+                   f"Удача: {row['luck']}\n"
+                   f"Позолота: {row['donat_luck']}\n"
+                   f"{row['donat']}")
     await message.answer(answer)
 
 @start_router.message(F.text.lower() == 'болт')
