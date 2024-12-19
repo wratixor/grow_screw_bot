@@ -97,7 +97,7 @@ async def status(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: 
         await r.s_join(db, message.from_user.id, message.chat.id)
         res = await r.r_status(db, message.chat.id)
         for row in res:
-            answer += f"{row['growe_size']}| {row['blade_size']}| {row['catch_size']} | {row['username']}"
+            answer += f"{row['growe_size']}| {row['blade_size']}| {row['catch_size']} | {row['username']}\n"
     else:
         answer = 'Команда доступна только в группе!'
     await message.answer(answer)
@@ -113,7 +113,7 @@ async def status(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: 
         await r.s_join(db, message.from_user.id, message.chat.id)
         res = await r.r_status(db, message.chat.id)
         for row in res:
-            answer += f"{row['growe_size']}| {row['blade_size']}| {row['catch_size']} | {row['username']}"
+            answer += f"{row['growe_size']}| {row['blade_size']}| {row['catch_size']} | {row['username']}\n"
     else:
         answer = 'Команда доступна только в группе!'
     await message.answer(answer)
@@ -126,7 +126,7 @@ async def status(message: Message, db: asyncpg.pool.Pool, quname: str):
                    f'Болт|Режек|В кармане|Имя\n')
     res = await r.r_status_all(db)
     for row in res:
-        answer += f"{row['growe_size']}| {row['blade_size']}| {row['catch_size']} | {row['username']}"
+        answer += f"{row['growe_size']}| {row['blade_size']}| {row['catch_size']} | {row['username']}\n"
     await message.answer(answer)
 
 @start_router.message(Command('statmy'))
@@ -154,7 +154,7 @@ async def status(message: Message, db: asyncpg.pool.Pool, quname: str):
                    f'Болт|Режек|В кармане|Имя\n')
     res = await r.r_status_all(db)
     for row in res:
-        answer += f"{row['growe_size']}| {row['blade_size']}| {row['catch_size']} | {row['username']}"
+        answer += f"{row['growe_size']}| {row['blade_size']}| {row['catch_size']} | {row['username']}\n"
     await message.answer(answer)
 
 @start_router.message(F.text.lower() == 'мои статы')
