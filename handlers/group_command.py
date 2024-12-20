@@ -91,15 +91,17 @@ async def cstatus(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup:
     await r.s_aou_user(db, message.from_user.id, quname, message.from_user.first_name)
     res: list[Record]
     answer: str = (f'Болты в вашем чатике:\n'
-                   f'Болт|Режек|В кармане|Имя\n')
+                   f'<code>'
+                   f'Болт   |Режек  |Карман | Имя\n')
     if isgroup:
         await r.s_aou_chat(db, message.chat.id, message.chat.type, message.chat.title)
         await r.s_join(db, message.from_user.id, message.chat.id)
         res = await r.r_status(db, message.chat.id)
         for row in res:
-            answer += f"{row['growe_size']}| {row['blade_size']}| {row['catch_size']} | {row['username']}\n"
+            answer += f"{row['growe_size']:7.2f}|{row['blade_size']:7.2f}|{row['catch_size']:7.2f}| {row['username']}\n"
     else:
         answer = 'Команда доступна только в группе!'
+    answer += '</code>'
     await message.answer(answer)
 
 @start_router.message(F.text.lower() == 'статы')
@@ -107,13 +109,13 @@ async def statusr(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup:
     await r.s_aou_user(db, message.from_user.id, quname, message.from_user.first_name)
     res: list[Record]
     answer: str = (f'Болты в вашем чатике:\n'
-                   f'Болт|Режек|В кармане|Имя\n')
+                   f'Болт   |Режек  |Карман | Имя\n')
     if isgroup:
         await r.s_aou_chat(db, message.chat.id, message.chat.type, message.chat.title)
         await r.s_join(db, message.from_user.id, message.chat.id)
         res = await r.r_status(db, message.chat.id)
         for row in res:
-            answer += f"{row['growe_size']}| {row['blade_size']}| {row['catch_size']} | {row['username']}\n"
+            answer += f"{row['growe_size']:7.2f}|{row['blade_size']:7.2f}|{row['catch_size']:7.2f}| {row['username']}\n"
     else:
         answer = 'Команда доступна только в группе!'
     await message.answer(answer)
@@ -123,10 +125,12 @@ async def cstatusall(message: Message, db: asyncpg.pool.Pool, quname: str):
     await r.s_aou_user(db, message.from_user.id, quname, message.from_user.first_name)
     res: list[Record]
     answer: str = (f'По всем пользователям:\n'
-                   f'Болт|Режек|В кармане|Имя\n')
+                   f'<code>'
+                   f'Болт   |Режек  |Карман | Имя\n')
     res = await r.r_status_all(db)
     for row in res:
-        answer += f"{row['growe_size']}| {row['blade_size']}| {row['catch_size']} | {row['username']}\n"
+        answer += f"{row['growe_size']:7.2f}|{row['blade_size']:7.2f}|{row['catch_size']:7.2f}| {row['username']}\n"
+    answer += '</code>'
     await message.answer(answer)
 
 @start_router.message(Command('statmy'))
@@ -136,12 +140,12 @@ async def cstatusmy(message: Message, db: asyncpg.pool.Pool, quname: str):
     answer: str = 'Твой профиль, '
     res = await r.r_status_my(db, message.from_user.id)
     for row in res:
-        answer += (f"{row['username']}!\n"
-                   f"Болт: {row['growe_size']}\n"
-                   f"Режек: {row['blade_size']}\n"
-                   f"В кармане: {row['catch_size']}\n"
-                   f"Удача: {row['luck']}\n"
-                   f"Позолота: {row['donat_luck']}\n"
+        answer += (f"{row['username']}!\n<code>"
+                   f"Болт     : {row['growe_size']:7.2f}\n"
+                   f"Режек    : {row['blade_size']:7.2f}\n"
+                   f"В кармане: {row['catch_size']:7.2f}\n"
+                   f"Удача    : {row['luck']:7.2f}\n"
+                   f"Позолота : {row['donat_luck']:7.2f}</code>\n"
                    f"{row['donat']}")
     await message.answer(answer)
 
@@ -151,10 +155,10 @@ async def statusallr(message: Message, db: asyncpg.pool.Pool, quname: str):
     await r.s_aou_user(db, message.from_user.id, quname, message.from_user.first_name)
     res: list[Record]
     answer: str = (f'По всем пользователям:\n'
-                   f'Болт|Режек|В кармане|Имя\n')
+                   f'Болт   |Режек  |Карман | Имя\n')
     res = await r.r_status_all(db)
     for row in res:
-        answer += f"{row['growe_size']}| {row['blade_size']}| {row['catch_size']} | {row['username']}\n"
+        answer += f"{row['growe_size']:7.2f}|{row['blade_size']:7.2f}|{row['catch_size']:7.2f}| {row['username']}\n"
     await message.answer(answer)
 
 @start_router.message(F.text.lower() == 'мои статы')
@@ -165,11 +169,11 @@ async def statusmyr(message: Message, db: asyncpg.pool.Pool, quname: str):
     res = await r.r_status_my(db, message.from_user.id)
     for row in res:
         answer += (f"{row['username']}!\n"
-                   f"Болт: {row['growe_size']}\n"
-                   f"Режек: {row['blade_size']}\n"
-                   f"В кармане: {row['catch_size']}\n"
-                   f"Удача: {row['luck']}\n"
-                   f"Позолота: {row['donat_luck']}\n"
+                   f"Болт     : {row['growe_size']:7.2f}\n"
+                   f"Режек    : {row['blade_size']:7.2f}\n"
+                   f"В кармане: {row['catch_size']:7.2f}\n"
+                   f"Удача    : {row['luck']:7.2f}\n"
+                   f"Позолота : {row['donat_luck']:7.2f}\n"
                    f"{row['donat']}")
     await message.answer(answer)
 
