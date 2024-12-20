@@ -704,11 +704,12 @@ AS $function$
   l_in2 numeric(4, 2) :=  10.00;
   l_max numeric(4, 2) :=  19.70;
 
+  l_time_pice numeric := 1200.0;
+
 
   l_last_upd timestamptz := (select update_date from screw.sc_screw where screw_id = i_screw_id);
   l_create_date timestamptz := (select create_date from screw.sc_screw where screw_id = i_screw_id);
-  l_debuf_pre numeric := (select case when (now() - l_last_upd) < (interval '3 hour') then -100.0
-                                      when (l_last_upd > (l_create_date + interval '10 second')) then ((extract(EPOCH from (now() -  l_last_upd)) / 3600.0) - 10.0)
+  l_debuf_pre numeric := (select case when (l_last_upd > (l_create_date + interval '10 second')) then ((extract(EPOCH from (now() -  l_last_upd)) / l_time_pice) - 10.0)
                                       else 10.0 end);
   l_debuf numeric := (select case when l_debuf_pre > 10 then 10 else l_debuf_pre end);
   l_d20 numeric(4, 2) := screw.i_d20(i_user_id);
@@ -1016,7 +1017,7 @@ AS $function$
 
   IF l_check_isset THEN
    l_antispam := (
-     select ((now() - max(update_date)) > (interval '2 hours') or max(update_date) is null)
+     select ((now() - max(update_date)) > (interval '15 minute') or max(update_date) is null)
        from screw.sc_grow_log as sg
       where sg.user_id = l_user_id
     );
