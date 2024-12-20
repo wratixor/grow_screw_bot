@@ -71,7 +71,7 @@ async def developer_info(message: Message):
     await message.answer(text)
 
 @start_router.message(Command('help'))
-async def helper(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: bool):
+async def chelper(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: bool):
     await r.s_aou_user(db, message.from_user.id, quname, message.from_user.first_name)
     if isgroup:
         await r.s_aou_chat(db, message.chat.id, message.chat.type, message.chat.title)
@@ -79,7 +79,7 @@ async def helper(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: 
     await message.answer(helpstr)
 
 @start_router.message(F.text.lower() == 'помоги')
-async def status(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: bool):
+async def helperr(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: bool):
     await r.s_aou_user(db, message.from_user.id, quname, message.from_user.first_name)
     if isgroup:
         await r.s_aou_chat(db, message.chat.id, message.chat.type, message.chat.title)
@@ -87,7 +87,7 @@ async def status(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: 
     await message.answer(helpstr)
 
 @start_router.message(Command('stat'))
-async def status(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: bool):
+async def cstatus(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: bool):
     await r.s_aou_user(db, message.from_user.id, quname, message.from_user.first_name)
     res: list[Record]
     answer: str = (f'Болты в вашем чатике:\n'
@@ -103,7 +103,7 @@ async def status(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: 
     await message.answer(answer)
 
 @start_router.message(F.text.lower() == 'статы')
-async def status(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: bool):
+async def statusr(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: bool):
     await r.s_aou_user(db, message.from_user.id, quname, message.from_user.first_name)
     res: list[Record]
     answer: str = (f'Болты в вашем чатике:\n'
@@ -119,7 +119,7 @@ async def status(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: 
     await message.answer(answer)
 
 @start_router.message(Command('statall'))
-async def status(message: Message, db: asyncpg.pool.Pool, quname: str):
+async def cstatusall(message: Message, db: asyncpg.pool.Pool, quname: str):
     await r.s_aou_user(db, message.from_user.id, quname, message.from_user.first_name)
     res: list[Record]
     answer: str = (f'По всем пользователям:\n'
@@ -130,7 +130,7 @@ async def status(message: Message, db: asyncpg.pool.Pool, quname: str):
     await message.answer(answer)
 
 @start_router.message(Command('statmy'))
-async def status(message: Message, db: asyncpg.pool.Pool, quname: str):
+async def cstatusmy(message: Message, db: asyncpg.pool.Pool, quname: str):
     await r.s_aou_user(db, message.from_user.id, quname, message.from_user.first_name)
     res: list[Record]
     answer: str = 'Твой профиль, '
@@ -147,7 +147,7 @@ async def status(message: Message, db: asyncpg.pool.Pool, quname: str):
 
 
 @start_router.message(F.text.lower() == 'все статы')
-async def status(message: Message, db: asyncpg.pool.Pool, quname: str):
+async def statusallr(message: Message, db: asyncpg.pool.Pool, quname: str):
     await r.s_aou_user(db, message.from_user.id, quname, message.from_user.first_name)
     res: list[Record]
     answer: str = (f'По всем пользователям:\n'
@@ -158,7 +158,7 @@ async def status(message: Message, db: asyncpg.pool.Pool, quname: str):
     await message.answer(answer)
 
 @start_router.message(F.text.lower() == 'мои статы')
-async def status(message: Message, db: asyncpg.pool.Pool, quname: str):
+async def statusmyr(message: Message, db: asyncpg.pool.Pool, quname: str):
     await r.s_aou_user(db, message.from_user.id, quname, message.from_user.first_name)
     res: list[Record]
     answer: str = 'Твой профиль, '
@@ -174,7 +174,7 @@ async def status(message: Message, db: asyncpg.pool.Pool, quname: str):
     await message.answer(answer)
 
 @start_router.message(F.text.lower() == 'болт')
-async def status(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: bool):
+async def boltr(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: bool):
     await r.s_aou_user(db, message.from_user.id, quname, message.from_user.first_name)
     answer: str
     if isgroup:
@@ -186,7 +186,7 @@ async def status(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: 
     await message.answer(answer)
 
 @start_router.message(F.text.lower() == 'срезать')
-async def status(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
+async def cutr(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
     answer: str
     if isgroup:
         answer = await r.s_user_cut(db, message.chat.id, message.from_user.id)
@@ -195,7 +195,7 @@ async def status(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
     await message.answer(answer)
 
 @start_router.message(F.text.lower() == 'сломать')
-async def status(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
+async def breackr(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
     answer: str
     if isgroup:
         answer = await r.s_user_breack(db, message.chat.id, message.from_user.id)
@@ -204,7 +204,7 @@ async def status(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
     await message.answer(answer)
 
 @start_router.message(F.text.lower() == 'напасть')
-async def status(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
+async def attackr(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
     answer: str
     if isgroup:
         answer = await r.s_user_attack(db, message.chat.id, message.from_user.id)
@@ -213,7 +213,7 @@ async def status(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
     await message.answer(answer)
 
 @start_router.message(F.text.lower() == 'забрать')
-async def status(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
+async def catchr(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
     answer: str
     if isgroup:
         answer = await r.s_user_catch(db, message.chat.id, message.from_user.id)
@@ -222,7 +222,7 @@ async def status(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
     await message.answer(answer)
 
 @start_router.message(F.text.lower() == 'точить')
-async def status(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
+async def sharpr(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
     answer: str
     if isgroup:
         answer = await r.s_user_sharpen(db, message.from_user.id)
@@ -231,7 +231,7 @@ async def status(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
     await message.answer(answer)
 
 @start_router.message(F.text.lower() == 'варить')
-async def status(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
+async def tigr(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
     answer: str
     if isgroup:
         answer = await r.s_user_tig(db, message.from_user.id)
@@ -241,7 +241,7 @@ async def status(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
 
 
 @start_router.message(Command('bolt'))
-async def status(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: bool):
+async def cbolt(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: bool):
     await r.s_aou_user(db, message.from_user.id, quname, message.from_user.first_name)
     answer: str
     if isgroup:
@@ -253,7 +253,7 @@ async def status(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: 
     await message.answer(answer)
 
 @start_router.message(Command('cut'))
-async def status(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
+async def ccut(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
     answer: str
     if isgroup:
         answer = await r.s_user_cut(db, message.chat.id, message.from_user.id)
@@ -262,7 +262,7 @@ async def status(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
     await message.answer(answer)
 
 @start_router.message(Command('breack'))
-async def status(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
+async def cbreack(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
     answer: str
     if isgroup:
         answer = await r.s_user_breack(db, message.chat.id, message.from_user.id)
@@ -271,7 +271,7 @@ async def status(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
     await message.answer(answer)
 
 @start_router.message(Command('attack'))
-async def status(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
+async def cattack(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
     answer: str
     if isgroup:
         answer = await r.s_user_attack(db, message.chat.id, message.from_user.id)
@@ -280,7 +280,7 @@ async def status(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
     await message.answer(answer)
 
 @start_router.message(Command('catch'))
-async def status(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
+async def ccatch(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
     answer: str
     if isgroup:
         answer = await r.s_user_catch(db, message.chat.id, message.from_user.id)
@@ -289,7 +289,7 @@ async def status(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
     await message.answer(answer)
 
 @start_router.message(Command('sharp'))
-async def status(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
+async def csharp(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
     answer: str
     if isgroup:
         answer = await r.s_user_sharpen(db, message.from_user.id)
@@ -298,7 +298,7 @@ async def status(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
     await message.answer(answer)
 
 @start_router.message(Command('tig'))
-async def status(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
+async def ctig(message: Message, db: asyncpg.pool.Pool, isgroup: bool):
     answer: str
     if isgroup:
         answer = await r.s_user_tig(db, message.from_user.id)
