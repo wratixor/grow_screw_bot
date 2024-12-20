@@ -90,8 +90,7 @@ async def helperr(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup:
 async def cstatus(message: Message, db: asyncpg.pool.Pool, quname: str, isgroup: bool):
     await r.s_aou_user(db, message.from_user.id, quname, message.from_user.first_name)
     res: list[Record]
-    answer: str = (f'Болты в вашем чатике:\n'
-                   f'<code>'
+    answer: str = (f'Болты в вашем чатике:\n<code>'
                    f'Болт   |Режек  |Карман | Имя\n')
     if isgroup:
         await r.s_aou_chat(db, message.chat.id, message.chat.type, message.chat.title)
@@ -168,12 +167,12 @@ async def statusmyr(message: Message, db: asyncpg.pool.Pool, quname: str):
     answer: str = 'Твой профиль, '
     res = await r.r_status_my(db, message.from_user.id)
     for row in res:
-        answer += (f"{row['username']}!\n"
+        answer += (f"{row['username']}!\n<code>"
                    f"Болт     : {row['growe_size']:7.2f}\n"
                    f"Режек    : {row['blade_size']:7.2f}\n"
                    f"В кармане: {row['catch_size']:7.2f}\n"
                    f"Удача    : {row['luck']:7.2f}\n"
-                   f"Позолота : {row['donat_luck']:7.2f}\n"
+                   f"Позолота : {row['donat_luck']:7.2f}</code>\n"
                    f"{row['donat']}")
     await message.answer(answer)
 
