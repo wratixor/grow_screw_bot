@@ -840,7 +840,7 @@ AS $function$
     RETURN (
       select case when l_screw_size < 1.0 then 'Ну куда ж ты с голыми руками то!'
                   when l_duser_id is null then 'Нет достойных тебя соперников или у них нечего отбирать...'
-                  else screw.s_screw_breack(l_chat_id, l_user_id, l_blade_screw, l_duser_id, l_dblade_screw) end::text as res
+                  else screw.s_screw_attack(l_chat_id, l_user_id, l_blade_screw, l_duser_id, l_dblade_screw) end::text as res
     );
   END IF;
  END
@@ -1485,7 +1485,7 @@ insert into screw.sc_message_pos(message_pos) values
 ('деформирует свой болт'),
 ('душит свой болт'),
 ('изгибает свой болт'),
-('кусаает свой болт'),
+('кусает свой болт'),
 ('ласкает свой болт'),
 ('материт свой болт'),
 ('машет своим болтом'),
