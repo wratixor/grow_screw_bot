@@ -36,7 +36,7 @@ AS $function$
                     order by random()
                     limit 1);
    IF l_duser_id is not null THEN
-     l_dblade_screw := (select growe_screw from screw.sc_user as c where c.user_id = l_duser_id);
+     l_dblade_screw := (select blade_screw from screw.sc_user as c where c.user_id = l_duser_id);
    END IF;
 
     RETURN (
