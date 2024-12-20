@@ -111,3 +111,35 @@ AS $function$
  END
 $function$
 ;
+
+DROP FUNCTION IF EXISTS screw.i_d20(int8);
+CREATE OR REPLACE FUNCTION screw.i_d20(i_user_id bigint)
+ RETURNS numeric(4, 2)
+ LANGUAGE plpgsql
+ VOLATILE SECURITY DEFINER COST 1
+AS $function$
+ DECLARE
+
+  l_luck numeric(4, 2) := (select luck from screw.sc_user where user_id = i_user_id);
+  l_donat_luck numeric(4, 2) := (select donat_luck from screw.sc_user where user_id = i_user_id);
+  l_donat_amount numeric(8, 2) := (select donat_amount from screw.sc_user where user_id = i_user_id);
+  l_donat_mod numeric(6, 2) := 3 ^ l_donat_luck;
+  l_d20 numeric(4, 2) := (((random() * 19.0) + 1.0) + l_luck)::numeric;
+
+ BEGIN
+  IF l_d20 < 10.0 THEN
+    update screw.sc_user set luck = luck + 1.0 where user_id = i_user_id;
+  ELSE
+    update screw.sc_user set luck = 0.0 where user_id = i_user_id;
+  END IF;
+
+  IF l_donat_luck > 0.0 and l_donat_amount > l_donat_mod THEN
+    update screw.sc_user set donat_amount = donat_amount - l_donat_mod where user_id = i_user_id;
+    insert into screw.sc_pay_log (user_id, pay) values (i_user_id, (-1.0 * l_donat_mod));
+    l_d20 := l_d20 + l_donat_luck;
+  END IF;
+
+  RETURN (l_d20);
+ END
+$function$
+;
