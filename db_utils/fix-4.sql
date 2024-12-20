@@ -21,6 +21,17 @@ AS $function$
 $function$
 ;
 
+DROP TYPE IF EXISTS screw.t_status_my CASCADE;
+CREATE TYPE screw.t_status_my AS (
+    username text,
+    growe_size numeric(6, 2),
+    blade_size numeric(6, 2),
+    catch_size numeric(6, 2),
+    luck       numeric(4, 2),
+    donat_luck numeric(4, 2),
+    donat text
+);
+
 CREATE OR REPLACE FUNCTION screw.r_status_my(i_user_id bigint)
  RETURNS SETOF screw.t_status_my
  LANGUAGE plpgsql

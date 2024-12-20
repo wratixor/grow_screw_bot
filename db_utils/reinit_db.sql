@@ -1,5 +1,4 @@
--- DROP SCHEMA screw;
-
+DROP SCHEMA IF EXISTS screw CASCADE;
 CREATE SCHEMA screw AUTHORIZATION rmaster;
 
 -- DROP SEQUENCE screw.grow_sq;
@@ -176,7 +175,24 @@ CREATE TABLE screw.sc_pay_log (
 	CONSTRAINT sc_pay_log_user_id_fkey FOREIGN KEY (user_id) REFERENCES screw.sc_user(user_id)
 );
 
+DROP TYPE IF EXISTS screw.t_status_all CASCADE;
+CREATE TYPE screw.t_status_all AS (
+    username text,
+    growe_size numeric(6, 2),
+    blade_size numeric(6, 2),
+    catch_size numeric(6, 2)
+);
 
+DROP TYPE IF EXISTS screw.t_status_my CASCADE;
+CREATE TYPE screw.t_status_my AS (
+    username text,
+    growe_size numeric(6, 2),
+    blade_size numeric(6, 2),
+    catch_size numeric(6, 2),
+    luck       numeric(2, 2),
+    donat_luck numeric(2, 2),
+    donat text
+);
 
 -- DROP FUNCTION screw.donat_rang(int8);
 
