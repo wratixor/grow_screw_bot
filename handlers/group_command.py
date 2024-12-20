@@ -160,10 +160,9 @@ async def statusallr(message: Message, db: asyncpg.pool.Pool, quname: str):
 @start_router.message(F.text.lower() == 'мои статы')
 async def statusmyr(message: Message, db: asyncpg.pool.Pool, quname: str):
     await r.s_aou_user(db, message.from_user.id, quname, message.from_user.first_name)
-
+    res: list[Record]
     answer: str = 'Твой профиль, '
-    res: list[Record] = await r.r_my_status(db, message.from_user.id)
-
+    res = await r.r_status_my(db, message.from_user.id)
     for row in res:
         answer += (f"{row['username']}!\n"
                    f"Болт: {row['growe_size']}\n"

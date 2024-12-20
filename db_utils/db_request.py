@@ -47,17 +47,6 @@ async def r_status(pool: asyncpg.pool.Pool, group_id: int = None) -> list[Record
             logger.error(f"Exception r_status_all({group_id}): {e}")
     return result
 
-
-async def r_my_status(pool: asyncpg.pool.Pool, user_id: int) -> list[Record]:
-    resultat: list[Record]
-    async with pool.acquire() as conn:
-        try:
-            resultat = await conn.fetch("select * from screw.r_status_my($1::bigint)", user_id)
-        except Exception as e:
-            logger.error(f"Exception r_status_all({user_id}): {e}")
-    return resultat
-
-
 async def r_status_all(pool: asyncpg.pool.Pool) -> list[Record]:
     result: list[Record]
     async with pool.acquire() as conn:
@@ -66,7 +55,6 @@ async def r_status_all(pool: asyncpg.pool.Pool) -> list[Record]:
         except Exception as e:
             logger.error(f"Exception r_status_all(): {e}")
     return result
-
 
 async def r_status_my(pool: asyncpg.pool.Pool, user_id: int = None) -> list[Record]:
     result: list[Record]
