@@ -1,13 +1,13 @@
 ALTER TABLE screw.sc_screw ALTER COLUMN sizesm TYPE numeric(12,2);
 
-DROP TYPE screw.t_status_all IF EXISTS CASCADE;
+DROP TYPE IF EXISTS screw.t_status_all CASCADE;
 CREATE TYPE screw.t_status_all AS (
 	username text,
 	growe_size numeric(12,2),
 	blade_size numeric(12,2),
 	catch_size numeric(12,2));
 
-DROP TYPE screw.t_status_my IF EXISTS CASCADE;
+DROP TYPE IF EXISTS screw.t_status_my CASCADE;
 CREATE TYPE screw.t_status_my AS (
 	username text,
 	growe_size numeric(12,2),
