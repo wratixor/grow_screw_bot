@@ -1,0 +1,1 @@
+ALTER TABLE screw.sc_screw ALTER COLUMN sizesm TYPE numeric(12,2);
