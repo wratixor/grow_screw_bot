@@ -517,8 +517,8 @@ AS $function$
   l_user_id bigint := coalesce(i_user_id, 0::bigint);
   l_catch_screw bigint := null;
   l_growe_screw bigint := (select growe_screw from screw.sc_user as c where c.user_id = l_user_id);
-  l_screw_size numeric(6, 2) := 0.0;
-  l_screw_modif numeric(6, 2) := 0.0;
+  l_screw_size numeric(12, 2) := 0.0;
+  l_screw_modif numeric(12, 2) := 0.0;
 
 
  BEGIN
