@@ -47,6 +47,30 @@ END
 $function$
 ;
 
+CREATE OR REPLACE FUNCTION screw.r_status_all()
+ RETURNS SETOF screw.t_status_all
+ LANGUAGE plpgsql
+ STABLE SECURITY DEFINER COST 1 ROWS 40
+AS $function$
+DECLARE
+
+
+BEGIN
+    RETURN QUERY
+    select u.first_name::text                   as username
+         , g.sizesm::numeric(12, 2)              as growe_size
+         , coalesce(b.sizesm, 0)::numeric(12, 2) as blade_size
+         , coalesce(c.sizesm, 0)::numeric(12, 2) as catch_size
+      from screw.sc_user  as u
+      join screw.sc_screw as g on g.screw_id = u.growe_screw
+ left join screw.sc_screw as b on b.screw_id = u.blade_screw
+ left join screw.sc_screw as c on c.screw_id = u.catch_screw
+     order by g.sizesm desc
+    FOR READ ONLY;
+RETURN;
+END
+$function$
+;
 
 CREATE OR REPLACE FUNCTION screw.r_status_my(i_user_id bigint)
  RETURNS SETOF screw.t_status_my
@@ -299,6 +323,226 @@ AS $function$
   RETURN (
     select l_screw_id
   );
+ END
+$function$
+;
+
+CREATE OR REPLACE FUNCTION screw.s_user_attack(i_chat_id bigint, i_user_id bigint)
+ RETURNS text
+ LANGUAGE plpgsql
+ SECURITY DEFINER COST 1
+AS $function$
+ DECLARE
+  l_check_user boolean := false;
+  l_check_chat boolean := false;
+  l_check_isset boolean := false;
+
+  l_chat_id bigint := coalesce(i_chat_id, 0::bigint);
+  l_user_id bigint := coalesce(i_user_id, 0::bigint);
+  l_duser_id bigint := 0;
+
+  l_blade_screw bigint := (select blade_screw from screw.sc_user as c where c.user_id = l_user_id);
+  l_dblade_screw bigint := 0;
+  l_screw_size numeric(12, 2) := (select sizesm from screw.sc_screw where screw_id = l_blade_screw);
+
+ BEGIN
+  l_check_user  := ((select count(1) from screw.sc_user as u where u.user_id = l_user_id) = 1);
+  l_check_chat  := ((select count(1) from screw.sc_chat as c where c.chat_id = l_chat_id) = 1);
+
+  IF l_check_user and l_check_chat THEN
+    l_check_isset := ((select count(1) from screw.sc_user_chat as uc where uc.user_id = l_user_id and uc.chat_id = l_chat_id) = 1);
+  END IF;
+
+  IF l_check_isset THEN
+    l_duser_id := (select u.user_id
+                     from screw.sc_user as u
+                     join screw.sc_screw as b on b.screw_id = u.blade_screw
+                    where abs(b.sizesm - l_screw_size) <= 17.0
+                      and u.user_id <> l_user_id
+                      and u.catch_screw is not null
+                    order by random()
+                    limit 1);
+   IF l_duser_id is not null THEN
+     l_dblade_screw := (select growe_screw from screw.sc_user as c where c.user_id = l_duser_id);
+   END IF;
+
+    RETURN (
+      select case when l_screw_size < 1.0 then 'Ну куда ж ты с голыми руками то!'
+                  when l_duser_id is null then 'Нет достойных тебя соперников или у них нечего отбирать...'
+                  else screw.s_screw_attack(l_chat_id, l_user_id, l_blade_screw, l_duser_id, l_dblade_screw) end::text as res
+    );
+  END IF;
+ END
+$function$
+;
+
+CREATE OR REPLACE FUNCTION screw.s_user_breack(i_chat_id bigint, i_user_id bigint)
+ RETURNS text
+ LANGUAGE plpgsql
+ SECURITY DEFINER COST 1
+AS $function$
+ DECLARE
+  l_check_user boolean := false;
+  l_check_chat boolean := false;
+  l_check_isset boolean := false;
+
+  l_chat_id bigint := coalesce(i_chat_id, 0::bigint);
+  l_user_id bigint := coalesce(i_user_id, 0::bigint);
+  l_duser_id bigint := 0;
+
+  l_growe_screw bigint := (select growe_screw from screw.sc_user as c where c.user_id = l_user_id);
+  l_dgrowe_screw bigint := 0;
+  l_screw_size numeric(12, 2) := (select sizesm from screw.sc_screw where screw_id = l_growe_screw);
+
+ BEGIN
+  l_check_user  := ((select count(1) from screw.sc_user as u where u.user_id = l_user_id) = 1);
+  l_check_chat  := ((select count(1) from screw.sc_chat as c where c.chat_id = l_chat_id) = 1);
+
+  IF l_check_user and l_check_chat THEN
+    l_check_isset := ((select count(1) from screw.sc_user_chat as uc where uc.user_id = l_user_id and uc.chat_id = l_chat_id) = 1);
+  END IF;
+
+  IF l_check_isset THEN
+    l_duser_id := (select u.user_id
+                     from screw.sc_user as u
+                     join screw.sc_screw as g on g.screw_id = u.growe_screw
+                    where abs(g.sizesm - l_screw_size) <= 17.0
+                      and u.user_id <> l_user_id
+                      and g.sizesm > 2.0
+                    order by random()
+                    limit 1);
+   IF l_duser_id is not null THEN
+     l_dgrowe_screw := (select growe_screw from screw.sc_user as c where c.user_id = l_duser_id);
+   END IF;
+
+    RETURN (
+      select case when l_screw_size < 2.0 then 'У тебя слишком короткий болт, отрасти хотябы 2.00см.!'
+                  when l_duser_id is null then 'Нет достойных тебя соперников...'
+                  else screw.s_screw_breack(l_chat_id, l_user_id, l_growe_screw, l_duser_id, l_dgrowe_screw) end::text as res
+    );
+  END IF;
+ END
+$function$
+;
+
+CREATE OR REPLACE FUNCTION screw.s_user_catch(i_chat_id bigint, i_user_id bigint)
+ RETURNS text
+ LANGUAGE plpgsql
+ SECURITY DEFINER COST 1
+AS $function$
+ DECLARE
+  l_check_user boolean := false;
+  l_check_chat boolean := false;
+  l_check_isset boolean := false;
+
+  l_chat_id bigint := coalesce(i_chat_id, 0::bigint);
+  l_user_id bigint := coalesce(i_user_id, 0::bigint);
+
+  l_drop_screw bigint := null;
+  l_screw_size numeric(12, 2) := 0.0;
+  l_blade_size numeric(12, 2) := 0.0;
+ BEGIN
+  l_check_user  := ((select count(1) from screw.sc_user as u where u.user_id = l_user_id) = 1);
+  l_check_chat  := ((select count(1) from screw.sc_chat as c where c.chat_id = l_chat_id) = 1);
+
+  IF l_check_user and l_check_chat THEN
+    l_check_isset := ((select count(1) from screw.sc_user_chat as uc where uc.user_id = l_user_id and uc.chat_id = l_chat_id) = 1);
+  END IF;
+
+  IF l_check_isset THEN
+    l_drop_screw := (select drop_screw from screw.sc_chat as c where c.chat_id = l_chat_id);
+    l_blade_size := (select coalesce(b.sizesm, 0.0)::numeric(12, 2) from screw.sc_user as u left join screw.sc_screw as b on b.screw_id = u.blade_screw where u.user_id = l_user_id);
+    IF l_drop_screw is not null THEN
+      update screw.sc_user set catch_screw = l_drop_screw where user_id = l_user_id;
+      update screw.sc_chat set drop_screw = null where chat_id = l_chat_id;
+      l_screw_size := (select sizesm from screw.sc_screw where screw_id = l_drop_screw);
+    END IF;
+
+    RETURN (
+      SELECT (case when l_drop_screw is not null then u.username || ' забирает болт ' || l_screw_size || 'см. себе в карман.'
+                   else u.username || ', тут уже нечего подбирать.' end) || ' Размер режека: ' || l_blade_size || 'см.'::text as res
+        from screw.sc_user as u
+       where u.user_id = l_user_id
+      FOR READ ONLY
+    );
+  END IF;
+ END
+$function$
+;
+
+
+CREATE OR REPLACE FUNCTION screw.s_user_sharpen(i_user_id bigint)
+ RETURNS text
+ LANGUAGE plpgsql
+ SECURITY DEFINER COST 1
+AS $function$
+ DECLARE
+  l_check_user boolean := false;
+
+  l_user_id bigint := coalesce(i_user_id, 0::bigint);
+  l_catch_screw bigint := null;
+  l_screw_size numeric(12, 2) := 0.0;
+
+
+ BEGIN
+  l_check_user := ((select count(1) from screw.sc_user as u where u.user_id = l_user_id) = 1);
+
+  IF l_check_user THEN
+    l_catch_screw := (select catch_screw from screw.sc_user as c where c.user_id = l_user_id);
+    IF l_catch_screw is not null THEN
+      update screw.sc_user set blade_screw = l_catch_screw, catch_screw = null where user_id = l_user_id;
+      l_screw_size := (select sizesm from screw.sc_screw where screw_id = l_catch_screw);
+    END IF;
+    RETURN (
+      SELECT case when l_catch_screw is not null then u.username || screw.s_gen_mid() || ' из кармана и превращает его в режек ' || l_screw_size || 'см.!'
+                  else u.username || ', тебе нечего точить!' end::text as res
+        from screw.sc_user as u
+       where u.user_id = l_user_id
+      FOR READ ONLY
+    );
+  END IF;
+ END
+$function$
+;
+
+
+CREATE OR REPLACE FUNCTION screw.s_user_tig(i_user_id bigint)
+ RETURNS text
+ LANGUAGE plpgsql
+ SECURITY DEFINER COST 1
+AS $function$
+ DECLARE
+  l_check_user boolean := false;
+
+  l_user_id bigint := coalesce(i_user_id, 0::bigint);
+  l_catch_screw bigint := null;
+  l_growe_screw bigint := (select growe_screw from screw.sc_user as c where c.user_id = l_user_id);
+  l_screw_size numeric(6, 2) := 0.0;
+  l_screw_modif numeric(6, 2) := 0.0;
+
+
+ BEGIN
+  l_check_user := ((select count(1) from screw.sc_user as u where u.user_id = l_user_id) = 1);
+
+  IF l_check_user THEN
+    l_catch_screw := (select catch_screw from screw.sc_user as c where c.user_id = l_user_id);
+
+    IF l_catch_screw is not null THEN
+      l_screw_size := (select sizesm from screw.sc_screw where screw_id = l_catch_screw);
+      l_screw_modif := (screw.i_d20(i_user_id) / 18.0) * l_screw_size;
+      update screw.sc_user set catch_screw = null where user_id = l_user_id;
+      update screw.sc_screw set sizesm = sizesm + l_screw_modif where screw_id = l_growe_screw;
+      l_screw_size := (select sizesm from screw.sc_screw where screw_id = l_growe_screw);
+    END IF;
+    RETURN (
+      SELECT case when l_catch_screw is not null then u.username || screw.s_gen_mid() || ' из кармана и приваривает ' || l_screw_modif
+                                                      || 'см. к своему болту! Теперь его(её)' || screw.donat_rang(i_user_id) || 'болт ' || l_screw_size || 'см.!'
+                  else u.username || ', тебе нечего приваривать!' end::text as res
+        from screw.sc_user as u
+       where u.user_id = l_user_id
+      FOR READ ONLY
+    );
+  END IF;
  END
 $function$
 ;
