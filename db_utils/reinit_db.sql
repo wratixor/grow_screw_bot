@@ -4,57 +4,57 @@ CREATE SCHEMA screw AUTHORIZATION rmaster;
 -- DROP SEQUENCE screw.grow_sq;
 
 CREATE SEQUENCE screw.grow_sq
-	INCREMENT BY 1
-	MINVALUE 100
-	MAXVALUE 9223372036854775807
-	START 100
-	CACHE 1
-	NO CYCLE;
+    INCREMENT BY 1
+    MINVALUE 100
+    MAXVALUE 9223372036854775807
+    START 100
+    CACHE 1
+    NO CYCLE;
 -- DROP SEQUENCE screw.message_pos_sq;
 
 CREATE SEQUENCE screw.message_pos_sq
-	INCREMENT BY 1
-	MINVALUE 100
-	MAXVALUE 9223372036854775807
-	START 100
-	CACHE 1
-	NO CYCLE;
+    INCREMENT BY 1
+    MINVALUE 100
+    MAXVALUE 9223372036854775807
+    START 100
+    CACHE 1
+    NO CYCLE;
 -- DROP SEQUENCE screw.message_pre_sq;
 
 CREATE SEQUENCE screw.message_pre_sq
-	INCREMENT BY 1
-	MINVALUE 100
-	MAXVALUE 9223372036854775807
-	START 100
-	CACHE 1
-	NO CYCLE;
+    INCREMENT BY 1
+    MINVALUE 100
+    MAXVALUE 9223372036854775807
+    START 100
+    CACHE 1
+    NO CYCLE;
 -- DROP SEQUENCE screw.pay_sq;
 
 CREATE SEQUENCE screw.pay_sq
-	INCREMENT BY 1
-	MINVALUE 100
-	MAXVALUE 9223372036854775807
-	START 100
-	CACHE 1
-	NO CYCLE;
+    INCREMENT BY 1
+    MINVALUE 100
+    MAXVALUE 9223372036854775807
+    START 100
+    CACHE 1
+    NO CYCLE;
 -- DROP SEQUENCE screw.screw_sq;
 
 CREATE SEQUENCE screw.screw_sq
-	INCREMENT BY 1
-	MINVALUE 100
-	MAXVALUE 9223372036854775807
-	START 100
-	CACHE 1
-	NO CYCLE;-- screw.sc_message_pos определение
+    INCREMENT BY 1
+    MINVALUE 100
+    MAXVALUE 9223372036854775807
+    START 100
+    CACHE 1
+    NO CYCLE;-- screw.sc_message_pos определение
 
 -- Drop table
 
 -- DROP TABLE screw.sc_message_pos;
 
 CREATE TABLE screw.sc_message_pos (
-	uid int8 DEFAULT nextval('screw.message_pos_sq'::regclass) NOT NULL,
-	message_pos varchar(64) NOT NULL,
-	CONSTRAINT "sc_message_pos$pk" PRIMARY KEY (uid)
+    uid int8 DEFAULT nextval('screw.message_pos_sq'::regclass) NOT NULL,
+    message_pos varchar(64) NOT NULL,
+    CONSTRAINT "sc_message_pos$pk" PRIMARY KEY (uid)
 );
 
 
@@ -65,9 +65,9 @@ CREATE TABLE screw.sc_message_pos (
 -- DROP TABLE screw.sc_message_pre;
 
 CREATE TABLE screw.sc_message_pre (
-	uid int8 DEFAULT nextval('screw.message_pre_sq'::regclass) NOT NULL,
-	message_pre varchar(32) NOT NULL,
-	CONSTRAINT "sc_message_pre$pk" PRIMARY KEY (uid)
+    uid int8 DEFAULT nextval('screw.message_pre_sq'::regclass) NOT NULL,
+    message_pre varchar(32) NOT NULL,
+    CONSTRAINT "sc_message_pre$pk" PRIMARY KEY (uid)
 );
 
 
@@ -78,11 +78,11 @@ CREATE TABLE screw.sc_message_pre (
 -- DROP TABLE screw.sc_screw;
 
 CREATE TABLE screw.sc_screw (
-	screw_id int8 DEFAULT nextval('screw.screw_sq'::regclass) NOT NULL,
-	sizesm numeric(6, 2) DEFAULT 0.0 NOT NULL,
-	create_date timestamptz DEFAULT now() NOT NULL,
-	update_date timestamptz DEFAULT now() NOT NULL,
-	CONSTRAINT "sc_screw$pk" PRIMARY KEY (screw_id)
+    screw_id int8 DEFAULT nextval('screw.screw_sq'::regclass) NOT NULL,
+    sizesm numeric(12, 2) DEFAULT 0.0 NOT NULL,
+    create_date timestamptz DEFAULT now() NOT NULL,
+    update_date timestamptz DEFAULT now() NOT NULL,
+    CONSTRAINT "sc_screw$pk" PRIMARY KEY (screw_id)
 );
 
 
@@ -93,12 +93,12 @@ CREATE TABLE screw.sc_screw (
 -- DROP TABLE screw.sc_chat;
 
 CREATE TABLE screw.sc_chat (
-	chat_id int8 NOT NULL,
-	chat_type varchar(64) NOT NULL,
-	chat_title varchar(64) NULL,
-	drop_screw int8 NULL,
-	CONSTRAINT "sc_chat$pk" PRIMARY KEY (chat_id),
-	CONSTRAINT sc_chat_drop_screw_fkey FOREIGN KEY (drop_screw) REFERENCES screw.sc_screw(screw_id)
+    chat_id int8 NOT NULL,
+    chat_type varchar(64) NOT NULL,
+    chat_title varchar(64) NULL,
+    drop_screw int8 NULL,
+    CONSTRAINT "sc_chat$pk" PRIMARY KEY (chat_id),
+    CONSTRAINT sc_chat_drop_screw_fkey FOREIGN KEY (drop_screw) REFERENCES screw.sc_screw(screw_id)
 );
 
 
@@ -109,19 +109,19 @@ CREATE TABLE screw.sc_chat (
 -- DROP TABLE screw.sc_user;
 
 CREATE TABLE screw.sc_user (
-	user_id int8 NOT NULL,
-	username varchar(64) NULL,
-	first_name varchar(64) NULL,
-	growe_screw int8 NULL,
-	blade_screw int8 NULL,
-	catch_screw int8 NULL,
-	luck numeric(4, 2) DEFAULT 0.0 NOT NULL,
-	donat_luck numeric(4, 2) DEFAULT 0.0 NOT NULL,
-	donat_amount numeric(6, 2) DEFAULT 0.0 NOT NULL,
-	CONSTRAINT "sc_user$pk" PRIMARY KEY (user_id),
-	CONSTRAINT sc_user_blade_screw_fkey FOREIGN KEY (blade_screw) REFERENCES screw.sc_screw(screw_id),
-	CONSTRAINT sc_user_catch_screw_fkey FOREIGN KEY (catch_screw) REFERENCES screw.sc_screw(screw_id),
-	CONSTRAINT sc_user_growe_screw_fkey FOREIGN KEY (growe_screw) REFERENCES screw.sc_screw(screw_id)
+    user_id int8 NOT NULL,
+    username varchar(64) NULL,
+    first_name varchar(64) NULL,
+    growe_screw int8 NULL,
+    blade_screw int8 NULL,
+    catch_screw int8 NULL,
+    luck numeric(4, 2) DEFAULT 0.0 NOT NULL,
+    donat_luck numeric(4, 2) DEFAULT 0.0 NOT NULL,
+    donat_amount numeric(6, 2) DEFAULT 0.0 NOT NULL,
+    CONSTRAINT "sc_user$pk" PRIMARY KEY (user_id),
+    CONSTRAINT sc_user_blade_screw_fkey FOREIGN KEY (blade_screw) REFERENCES screw.sc_screw(screw_id),
+    CONSTRAINT sc_user_catch_screw_fkey FOREIGN KEY (catch_screw) REFERENCES screw.sc_screw(screw_id),
+    CONSTRAINT sc_user_growe_screw_fkey FOREIGN KEY (growe_screw) REFERENCES screw.sc_screw(screw_id)
 );
 
 
@@ -132,11 +132,11 @@ CREATE TABLE screw.sc_user (
 -- DROP TABLE screw.sc_user_chat;
 
 CREATE TABLE screw.sc_user_chat (
-	user_id int8 NOT NULL,
-	chat_id int8 NOT NULL,
-	CONSTRAINT "sc_user_chat$pk" PRIMARY KEY (chat_id, user_id),
-	CONSTRAINT sc_user_chat_chat_id_fkey FOREIGN KEY (chat_id) REFERENCES screw.sc_chat(chat_id),
-	CONSTRAINT sc_user_chat_user_id_fkey FOREIGN KEY (user_id) REFERENCES screw.sc_user(user_id)
+    user_id int8 NOT NULL,
+    chat_id int8 NOT NULL,
+    CONSTRAINT "sc_user_chat$pk" PRIMARY KEY (chat_id, user_id),
+    CONSTRAINT sc_user_chat_chat_id_fkey FOREIGN KEY (chat_id) REFERENCES screw.sc_chat(chat_id),
+    CONSTRAINT sc_user_chat_user_id_fkey FOREIGN KEY (user_id) REFERENCES screw.sc_user(user_id)
 );
 
 
@@ -147,16 +147,16 @@ CREATE TABLE screw.sc_user_chat (
 -- DROP TABLE screw.sc_grow_log;
 
 CREATE TABLE screw.sc_grow_log (
-	uid int8 DEFAULT nextval('screw.grow_sq'::regclass) NOT NULL,
-	chat_id int8 NULL,
-	user_id int8 NULL,
-	screw_id int8 NULL,
-	update_date timestamptz DEFAULT now() NOT NULL,
-	modif numeric(6, 2) DEFAULT 0.0 NOT NULL,
-	CONSTRAINT "sc_grow_log$pk" PRIMARY KEY (uid),
-	CONSTRAINT sc_grow_log_chat_id_fkey FOREIGN KEY (chat_id) REFERENCES screw.sc_chat(chat_id),
-	CONSTRAINT sc_grow_log_screw_id_fkey FOREIGN KEY (screw_id) REFERENCES screw.sc_screw(screw_id),
-	CONSTRAINT sc_grow_log_user_id_fkey FOREIGN KEY (user_id) REFERENCES screw.sc_user(user_id)
+    uid int8 DEFAULT nextval('screw.grow_sq'::regclass) NOT NULL,
+    chat_id int8 NULL,
+    user_id int8 NULL,
+    screw_id int8 NULL,
+    update_date timestamptz DEFAULT now() NOT NULL,
+    modif numeric(6, 2) DEFAULT 0.0 NOT NULL,
+    CONSTRAINT "sc_grow_log$pk" PRIMARY KEY (uid),
+    CONSTRAINT sc_grow_log_chat_id_fkey FOREIGN KEY (chat_id) REFERENCES screw.sc_chat(chat_id),
+    CONSTRAINT sc_grow_log_screw_id_fkey FOREIGN KEY (screw_id) REFERENCES screw.sc_screw(screw_id),
+    CONSTRAINT sc_grow_log_user_id_fkey FOREIGN KEY (user_id) REFERENCES screw.sc_user(user_id)
 );
 
 
@@ -167,32 +167,15 @@ CREATE TABLE screw.sc_grow_log (
 -- DROP TABLE screw.sc_pay_log;
 
 CREATE TABLE screw.sc_pay_log (
-	uid int8 DEFAULT nextval('screw.pay_sq'::regclass) NOT NULL,
-	user_id int8 NULL,
-	pay numeric(6, 2) DEFAULT 0.0 NOT NULL,
-	update_date timestamptz DEFAULT now() NOT NULL,
-	CONSTRAINT "sc_pay_log$pk" PRIMARY KEY (uid),
-	CONSTRAINT sc_pay_log_user_id_fkey FOREIGN KEY (user_id) REFERENCES screw.sc_user(user_id)
+    uid int8 DEFAULT nextval('screw.pay_sq'::regclass) NOT NULL,
+    user_id int8 NULL,
+    pay numeric(6, 2) DEFAULT 0.0 NOT NULL,
+    update_date timestamptz DEFAULT now() NOT NULL,
+    CONSTRAINT "sc_pay_log$pk" PRIMARY KEY (uid),
+    CONSTRAINT sc_pay_log_user_id_fkey FOREIGN KEY (user_id) REFERENCES screw.sc_user(user_id)
 );
 
-DROP TYPE IF EXISTS screw.t_status_all CASCADE;
-CREATE TYPE screw.t_status_all AS (
-    username text,
-    growe_size numeric(6, 2),
-    blade_size numeric(6, 2),
-    catch_size numeric(6, 2)
-);
 
-DROP TYPE IF EXISTS screw.t_status_my CASCADE;
-CREATE TYPE screw.t_status_my AS (
-    username text,
-    growe_size numeric(6, 2),
-    blade_size numeric(6, 2),
-    catch_size numeric(6, 2),
-    luck       numeric(2, 2),
-    donat_luck numeric(2, 2),
-    donat text
-);
 
 -- DROP FUNCTION screw.donat_rang(int8);
 
@@ -219,24 +202,6 @@ AS $function$
 $function$
 ;
 
--- DROP FUNCTION screw.i_d20();
-
-CREATE OR REPLACE FUNCTION screw.i_d20()
- RETURNS numeric
- LANGUAGE plpgsql
- SECURITY DEFINER COST 1
-AS $function$
- DECLARE
-
- BEGIN
-
-  RETURN (
-    select ((random() * 19.0) + 1)
-  );
- END
-$function$
-;
-
 -- DROP FUNCTION screw.i_d20(int8);
 
 CREATE OR REPLACE FUNCTION screw.i_d20(i_user_id bigint)
@@ -248,13 +213,15 @@ AS $function$
 
   l_luck numeric(4, 2) := (select luck from screw.sc_user where user_id = i_user_id);
   l_donat_luck numeric(4, 2) := (select donat_luck from screw.sc_user where user_id = i_user_id);
-  l_donat_amount numeric(6, 2) := (select donat_amount from screw.sc_user where user_id = i_user_id);
+  l_donat_amount numeric(8, 2) := (select donat_amount from screw.sc_user where user_id = i_user_id);
   l_donat_mod numeric(6, 2) := 3 ^ l_donat_luck;
   l_d20 numeric(4, 2) := (((random() * 19.0) + 1.0) + l_luck)::numeric;
 
  BEGIN
   IF l_d20 < 10.0 THEN
     update screw.sc_user set luck = luck + 1.0 where user_id = i_user_id;
+  ELSE
+    update screw.sc_user set luck = 0.0 where user_id = i_user_id;
   END IF;
 
   IF l_donat_luck > 0.0 and l_donat_amount > l_donat_mod THEN
@@ -299,7 +266,7 @@ CREATE OR REPLACE FUNCTION screw.i_new_screw(i_size numeric)
 AS $function$
  DECLARE
   l_screw_id bigint := 0;
-  l_size numeric(6, 2) := i_size;
+  l_size numeric(12, 2) := i_size;
 
  BEGIN
 
@@ -326,9 +293,9 @@ DECLARE
 BEGIN
     RETURN QUERY
     select u.first_name::text                   as username
-         , g.sizesm::numeric(6, 2)              as growe_size
-         , coalesce(b.sizesm, 0)::numeric(6, 2) as blade_size
-         , coalesce(c.sizesm, 0)::numeric(6, 2) as catch_size
+         , g.sizesm::numeric(12, 2)              as growe_size
+         , coalesce(b.sizesm, 0)::numeric(12, 2) as blade_size
+         , coalesce(c.sizesm, 0)::numeric(12, 2) as catch_size
       from screw.sc_user  as u
       join screw.sc_screw as g on g.screw_id = u.growe_screw
  left join screw.sc_screw as b on b.screw_id = u.blade_screw
@@ -355,9 +322,9 @@ BEGIN
   IF l_chat_id <> 0 THEN
     RETURN QUERY
     select u.first_name::text                   as username
-         , g.sizesm::numeric(6, 2)              as growe_size
-         , coalesce(b.sizesm, 0)::numeric(6, 2) as blade_size
-         , coalesce(c.sizesm, 0)::numeric(6, 2) as catch_size
+         , g.sizesm::numeric(12, 2)              as growe_size
+         , coalesce(b.sizesm, 0)::numeric(12, 2) as blade_size
+         , coalesce(c.sizesm, 0)::numeric(12, 2) as catch_size
       from screw.sc_user_chat as uc
       join screw.sc_user  as u on uc.user_id = u.user_id
       join screw.sc_screw as g on g.screw_id = u.growe_screw
@@ -387,9 +354,9 @@ BEGIN
   IF l_user_id <> 0 THEN
     RETURN QUERY
     select u.username::text                           as username
-         , coalesce(g.sizesm, 0)::numeric(6, 2)       as growe_size
-         , coalesce(b.sizesm, 0)::numeric(6, 2)       as blade_size
-         , coalesce(c.sizesm, 0)::numeric(6, 2)       as catch_size
+         , coalesce(g.sizesm, 0)::numeric(12, 2)       as growe_size
+         , coalesce(b.sizesm, 0)::numeric(12, 2)       as blade_size
+         , coalesce(c.sizesm, 0)::numeric(12, 2)       as catch_size
          , coalesce(u.luck, 0)::numeric(4, 2)         as luck
          , coalesce(u.donat_luck, 0)::numeric(4, 2)   as donat_luck
          , ('Баланс: ' || u.donat_amount || '| Цена броска: ' || (3.0 ^ u.donat_luck)::numeric(6, 2))::text as donat
@@ -565,15 +532,15 @@ AS $function$
 
   l_d20       numeric(4, 2) := screw.i_d20(i_user_id);
   l_d20_def   numeric(4, 2) := screw.i_d20(i_defuser_id);
-  l_size      numeric(6, 2) := (select sizesm from screw.sc_screw where screw_id = i_screw_id);
-  l_size_def  numeric(6, 2) := (select sizesm from screw.sc_screw where screw_id = i_defscrew_id);
+  l_size      numeric(12, 2) := (select sizesm from screw.sc_screw where screw_id = i_screw_id);
+  l_size_def  numeric(12, 2) := (select sizesm from screw.sc_screw where screw_id = i_defscrew_id);
 
-  l_half_size numeric(6, 2) := 0.0;
+  l_half_size numeric(12, 2) := 0.0;
 
   l_win boolean := ((l_d20_def + l_size_def) < (l_d20 + l_size));
 
   l_catch_screw bigint := (select catch_screw from screw.sc_user as c where c.user_id = i_defuser_id);
-  l_screw_size numeric(6, 2) := (select sizesm from screw.sc_screw where screw_id = l_catch_screw);
+  l_screw_size numeric(12, 2) := (select sizesm from screw.sc_screw where screw_id = l_catch_screw);
 
  BEGIN
   IF l_win THEN
@@ -608,10 +575,10 @@ AS $function$
 
   l_d20       numeric(4, 2) := screw.i_d20(i_defuser_id);
   l_d20_def   numeric(4, 2) := screw.i_d20(i_user_id);
-  l_size      numeric(6, 2) := (select sizesm from screw.sc_screw where screw_id = i_screw_id);
-  l_size_def  numeric(6, 2) := (select sizesm from screw.sc_screw where screw_id = i_defscrew_id);
+  l_size      numeric(12, 2) := (select sizesm from screw.sc_screw where screw_id = i_screw_id);
+  l_size_def  numeric(12, 2) := (select sizesm from screw.sc_screw where screw_id = i_defscrew_id);
 
-  l_half_size numeric(6, 2) := 0.0;
+  l_half_size numeric(12, 2) := 0.0;
 
   l_looser       bigint     := 0;
   l_looser_screw bigint     := 0;
@@ -655,8 +622,8 @@ AS $function$
 
   l_d20       numeric(4, 2) := screw.i_d20(i_user_id);
   l_d20_def   numeric(4, 2) := screw.i_d20(i_defuser_id);
-  l_size      numeric(6, 2) := coalesce((select sizesm from screw.sc_screw where screw_id = i_screw_id), 0.0);
-  l_size_def  numeric(6, 2) := coalesce((select sizesm from screw.sc_screw where screw_id = i_defscrew_id), 0.0);
+  l_size      numeric(12, 2) := coalesce((select sizesm from screw.sc_screw where screw_id = i_screw_id), 0.0);
+  l_size_def  numeric(12, 2) := coalesce((select sizesm from screw.sc_screw where screw_id = i_defscrew_id), 0.0);
 
   l_attack bool := ((l_d20_def + l_size_def) < (l_d20 + l_size));
 
@@ -715,9 +682,9 @@ AS $function$
   l_d20 numeric(4, 2) := screw.i_d20(i_user_id);
 
   l_modif numeric := ((((l_debuf + ((l_d20 ^ l_pow) * l_mul)) / l_di1) - l_sub) / l_di2);
-  l_curr_size numeric(6, 2) := (select sizesm from screw.sc_screw where screw_id = i_screw_id);
-  l_half_size numeric(6, 2) := l_curr_size / 2.0;
-  l_double_size numeric(6, 2) := l_curr_size * 2.0;
+  l_curr_size numeric(12, 2) := (select sizesm from screw.sc_screw where screw_id = i_screw_id);
+  l_half_size numeric(12, 2) := l_curr_size / 2.0;
+  l_double_size numeric(12, 2) := l_curr_size * 2.0;
 
  BEGIN
   IF l_curr_size < 1 and l_modif < 0.0 THEN
@@ -815,7 +782,7 @@ AS $function$
 
   l_blade_screw bigint := (select blade_screw from screw.sc_user as c where c.user_id = l_user_id);
   l_dblade_screw bigint := 0;
-  l_screw_size numeric(6, 2) := (select sizesm from screw.sc_screw where screw_id = l_blade_screw);
+  l_screw_size numeric(12, 2) := (select sizesm from screw.sc_screw where screw_id = l_blade_screw);
 
  BEGIN
   l_check_user  := ((select count(1) from screw.sc_user as u where u.user_id = l_user_id) = 1);
@@ -866,7 +833,7 @@ AS $function$
 
   l_growe_screw bigint := (select growe_screw from screw.sc_user as c where c.user_id = l_user_id);
   l_dgrowe_screw bigint := 0;
-  l_screw_size numeric(6, 2) := (select sizesm from screw.sc_screw where screw_id = l_growe_screw);
+  l_screw_size numeric(12, 2) := (select sizesm from screw.sc_screw where screw_id = l_growe_screw);
 
  BEGIN
   l_check_user  := ((select count(1) from screw.sc_user as u where u.user_id = l_user_id) = 1);
@@ -915,8 +882,8 @@ AS $function$
   l_user_id bigint := coalesce(i_user_id, 0::bigint);
 
   l_drop_screw bigint := null;
-  l_screw_size numeric(6, 2) := 0.0;
-  l_blade_size numeric(6, 2) := 0.0;
+  l_screw_size numeric(12, 2) := 0.0;
+  l_blade_size numeric(12, 2) := 0.0;
  BEGIN
   l_check_user  := ((select count(1) from screw.sc_user as u where u.user_id = l_user_id) = 1);
   l_check_chat  := ((select count(1) from screw.sc_chat as c where c.chat_id = l_chat_id) = 1);
@@ -927,7 +894,7 @@ AS $function$
 
   IF l_check_isset THEN
     l_drop_screw := (select drop_screw from screw.sc_chat as c where c.chat_id = l_chat_id);
-    l_blade_size := (select coalesce(b.sizesm, 0.0)::numeric(6, 2) from screw.sc_user as u left join screw.sc_screw as b on b.screw_id = u.blade_screw where u.user_id = l_user_id);
+    l_blade_size := (select coalesce(b.sizesm, 0.0)::numeric(12, 2) from screw.sc_user as u left join screw.sc_screw as b on b.screw_id = u.blade_screw where u.user_id = l_user_id);
     IF l_drop_screw is not null THEN
       update screw.sc_user set catch_screw = l_drop_screw where user_id = l_user_id;
       update screw.sc_chat set drop_screw = null where chat_id = l_chat_id;
@@ -1085,7 +1052,7 @@ AS $function$
 
   l_user_id bigint := coalesce(i_user_id, 0::bigint);
   l_catch_screw bigint := null;
-  l_screw_size numeric(6, 2) := 0.0;
+  l_screw_size numeric(12, 2) := 0.0;
 
 
  BEGIN
@@ -1122,8 +1089,8 @@ AS $function$
   l_user_id bigint := coalesce(i_user_id, 0::bigint);
   l_catch_screw bigint := null;
   l_growe_screw bigint := (select growe_screw from screw.sc_user as c where c.user_id = l_user_id);
-  l_screw_size numeric(6, 2) := 0.0;
-  l_screw_modif numeric(6, 2) := 0.0;
+  l_screw_size numeric(12, 2) := 0.0;
+  l_screw_modif numeric(12, 2) := 0.0;
 
 
  BEGIN
@@ -1151,6 +1118,7 @@ AS $function$
  END
 $function$
 ;
+
 
 insert into screw.sc_message_pre(message_pre) values
 ('азартно'),
@@ -1455,7 +1423,7 @@ insert into screw.sc_message_pre(message_pre) values
 
 insert into screw.sc_message_pos(message_pos) values
 ('бередит свой болт'),
-('беседует со свим болтом'),
+('беседует со своим болтом'),
 ('благодарит свой болт'),
 ('благословляет свой болт'),
 ('боготворит свой болт'),
@@ -1466,7 +1434,7 @@ insert into screw.sc_message_pos(message_pos) values
 ('вглядывается в свой болт'),
 ('вертит своим болтом'),
 ('веселит свой болт'),
-('веселится со свим болтом'),
+('веселится со своим болтом'),
 ('вещает истину своему болту'),
 ('взбивает свой болт'),
 ('взвешивает свой болт'),
@@ -1480,7 +1448,7 @@ insert into screw.sc_message_pos(message_pos) values
 ('восхваляет свой болт'),
 ('вытаскивает на всеобщее обозрение свой болт'),
 ('гипнотизирует свой болт'),
-('горланит о свём болте'),
+('горланит о своём болте'),
 ('демонстрирует всем свой болт'),
 ('дергает свой болт'),
 ('деформирует свой болт'),
@@ -1517,3 +1485,4 @@ insert into screw.sc_message_pos(message_pos) values
 ('смотрит на свой болт'),
 ('убаюкивает свой болт'),
 ('хвастается своим болтом');
+
